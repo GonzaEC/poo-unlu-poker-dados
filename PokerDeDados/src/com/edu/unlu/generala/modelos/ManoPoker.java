@@ -1,6 +1,4 @@
 package com.edu.unlu.generala.modelos;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ManoPoker {
     private Vaso vaso;
@@ -29,27 +27,70 @@ public class ManoPoker {
     }
 
     private boolean esPar(int[] recuento) {
-        
+        for(int recuentos : recuento) {
+            if (recuentos == 2){
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean esParDoble(int[] recuento) {
+        int pares = 0;
+        for(int recuentos : recuento) {
+            if (recuentos == 2){
+                pares++;
+            }
+        }
+        return pares == 2;
     }
 
     private boolean esPierna(int[] recuento) {
+        for(int recuentos : recuento) {
+            if (recuentos == 3){
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean esEscaleraMenor(int[] recuento) {
+        return recuento[0] == 1 && recuento[1] == 1 && recuento[2] == 1 && recuento[3] == 1 && recuento[4] == 1;
     }
 
     private boolean esEscaleraMayor(int[] recuento) {
+        return recuento[1] == 1 && recuento[2] == 1 && recuento[3] == 1 && recuento[4] == 1 && recuento[5] == 1;
     }
 
     private boolean esFull(int[] recuento) {
+        boolean resultado1 = false;
+        boolean resultado2 = false;
+        for(int recuentos : recuento) {
+            if (recuentos == 3){
+                resultado1 = true;
+            }
+            if(recuentos==2){
+                resultado2 = true;
+            }
+        }
+        return resultado1 && resultado2;
     }
 
     private boolean esPokerCuadruple(int[] recuento) {
+        for(int recuentos : recuento) {
+            if (recuentos == 4){
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean esPokerReal(int[] recuento) {
+        for(int recuentos : recuento) {
+            if (recuentos == 5){
+                return true;
+            }
+        }
+        return false;
     }
 }
