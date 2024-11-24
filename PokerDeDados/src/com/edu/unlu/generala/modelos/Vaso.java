@@ -5,9 +5,24 @@ public class Vaso {
 
     //metodos
     public void lanzarDados(){
-        for (int i = 0; i < dados.length; i++) {
-            dados[i].tirar();
+        for (Dado dado : dados) {
+            dado.tirar();
         }
     }
+
+    public Dado[] getDados() {
+        return dados;
+    }
+
+    public int[] obtenerValores() {
+        int[] valores = new int[dados.length];
+        for (int i = 0; i < dados.length; i++) {
+            valores[i] = dados[i].getCara();
+        }
+        return valores;
+    }
+
+
+
 
 }
