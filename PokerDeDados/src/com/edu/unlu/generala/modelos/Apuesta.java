@@ -18,6 +18,7 @@ public class Apuesta {
     }
     public void setApuesta(int cantidad){
         this.cantidad = cantidad;
+
     }
 }
 

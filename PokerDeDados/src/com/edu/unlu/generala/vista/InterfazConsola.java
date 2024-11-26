@@ -1,6 +1,7 @@
 package com.edu.unlu.generala.vista;
 
 import com.edu.unlu.generala.controladores.ControladorGenerala;
+import com.edu.unlu.generala.modelos.Apuesta;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -159,6 +160,16 @@ public class InterfazConsola extends JFrame implements IVista {
         );
     }
     private void verHistorialDePartidas() {
+    }
+    public void mostrarCartelRonda(int ronda){
+        println("---------------------------");
+        println("|          RONDA %d          |");
+        println("---------------------------");
+    }
+
+    @Override
+    public Apuesta pedirApuesta() {
+        return null;
     }
 
     @Override
