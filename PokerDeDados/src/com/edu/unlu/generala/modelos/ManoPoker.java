@@ -12,18 +12,19 @@ public class ManoPoker {
         return recuento;
     }
 
-    public void verificarMano(int[] valores){
+    public String verificarMano(int[] valores) {
         int[] recuento = construirRecuento(valores);
 
-        if(esPokerReal(recuento)) return;
-        if(esPokerCuadruple(recuento)) return;
-        if(esFull(recuento)) return;
-        if(esEscaleraMayor(recuento)) return;
-        if(esEscaleraMenor(recuento)) return;
-        if(esPierna(recuento)) return;
-        if(esParDoble(recuento)) return;
-        if(esPar(recuento)) return;
+        if (esPokerReal(recuento)) return "Poker Real";
+        if (esPokerCuadruple(recuento)) return "Poker Cuádruple";
+        if (esFull(recuento)) return "Full";
+        if (esEscaleraMayor(recuento)) return "Escalera Mayor";
+        if (esEscaleraMenor(recuento)) return "Escalera Menor";
+        if (esPierna(recuento)) return "Pierna";
+        if (esParDoble(recuento)) return "Par Doble";
+        if (esPar(recuento)) return "Par";
 
+        return "Ninguna Mano";
     }
 
     private boolean esPar(int[] recuento) {

@@ -8,21 +8,31 @@ import java.util.List;
 
 public class Partida extends ObservableRemoto implements IPartida {
     private List<Jugador> jugadores;
+    private List<Apuesta> apuestas;
     private Vaso vaso;
     private int turno;
     private int bote;
 
     public Partida() {
         this.jugadores = new ArrayList<>();
+        this.apuestas = new ArrayList<>();
         this.vaso = new Vaso();
         this.turno = 0;
         this.bote =0;
     }
 
-    public void iniciarPartida(){
-
+    public List<Apuesta> getApuestas() {
+        return apuestas;
     }
-
+    public boolean agregarApuesta(Jugador jugador, int cantidad) {
+        if (jugador.retirarSaldo(cantidad)) {
+            Apuesta nuevaApuesta = new Apuesta(jugador, cantidad);
+            apuestas.add(nuevaApuesta);
+            jugador.setApostado(nuevaApuesta);
+            return true;
+        }
+        return false;
+    }
     @Override
     public void agregarJugador(Jugador jugador) throws RemoteException{
         jugadores.add(jugador);
@@ -35,12 +45,6 @@ public class Partida extends ObservableRemoto implements IPartida {
     public List<Jugador> obtenerTodosLosJugadores() throws RemoteException {
         return jugadores;
     }
-//CONSULTA SOBRE INTERFACE
-    @Override
-    public int cantidadJugadores() {
-        return 0;
-    }
-
     public boolean sigueJuego(){
 
         int contadorJugadoresEnJuego=0;
@@ -99,5 +103,10 @@ public class Partida extends ObservableRemoto implements IPartida {
 
     public Vaso getVaso() {
         return this.vaso;
+    }
+
+    @Override
+    public Jugador determinarGanador() {
+        return null;
     }
 }

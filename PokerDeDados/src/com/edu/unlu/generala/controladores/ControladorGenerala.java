@@ -31,6 +31,34 @@ public class ControladorGenerala implements IControladorRemoto {
         }
 
     }
+    public boolean realizarApuesta(Jugador jugador, int cantidad) {
+        return partida.agregarApuesta(jugador, cantidad);
+    }
+    public List<Apuesta> obtenerApuestas() {
+        return partida.getApuestas();
+    }
+
+    public void iniciarRonda() throws RemoteException {
+        for (Jugador jugador : partida.obtenerTodosLosJugadores()) {
+            // Solicita apuesta
+            vista.mostrarMensaje(jugador.getNombre() + ", realiza tu apuesta:");
+            int monto = vista.obtenerApuesta();
+            jugador.setApostado(new Apuesta(jugador, monto));
+        }
+
+        // Luego realiza las tiradas
+        for (Jugador jugador : partida.obtenerTodosLosJugadores()) {
+            vista.mostrarMensaje(jugador.getNombre() + ", es tu turno para tirar los dados.");
+            partida.getVaso().lanzarDados();
+            vista.mostrarResultadoDados(partida.getVaso().obtenerValores());
+        }
+
+        // Determinar el ganador
+        Jugador ganador = partida.determinarGanador();
+        vista.mostrarMensaje("El ganador es: " + ganador.getNombre() + " y gana el bote de " + partida.getBote());
+        partida.getApuesta().resetearApuestas();
+    }
+
     public void inciarJuego() throws RemoteException {
         int catidadJugadores = partida.cantidaJugadores();
 

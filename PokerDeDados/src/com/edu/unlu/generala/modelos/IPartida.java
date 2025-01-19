@@ -10,8 +10,6 @@ public interface IPartida{
 
     List<Jugador> obtenerTodosLosJugadores() throws RemoteException;
 
-    int cantidadJugadores();
-
     void avanzarTurno() throws RemoteException;
 
     void setBote() throws RemoteException;
@@ -25,4 +23,12 @@ public interface IPartida{
     boolean sigueJuego();
 
     Vaso getVaso();
+
+    Jugador determinarGanador();
+
+    boolean agregarApuesta(Jugador jugador, int cantidad);
+
+    List<Apuesta> getApuestas();
+
+    List<Jugador> getJugadores();
 }
