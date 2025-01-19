@@ -10,8 +10,6 @@ public interface IPartida{
 
     List<Jugador> obtenerTodosLosJugadores() throws RemoteException;
 
-    int cantidadJugadores();
-
     void avanzarTurno() throws RemoteException;
 
     void setBote() throws RemoteException;

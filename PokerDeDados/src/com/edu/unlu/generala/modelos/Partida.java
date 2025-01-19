@@ -35,11 +35,6 @@ public class Partida extends ObservableRemoto implements IPartida {
     public List<Jugador> obtenerTodosLosJugadores() throws RemoteException {
         return jugadores;
     }
-//CONSULTA SOBRE INTERFACE
-    @Override
-    public int cantidadJugadores() {
-        return 0;
-    }
 
     public boolean sigueJuego(){
 
@@ -96,6 +91,7 @@ public class Partida extends ObservableRemoto implements IPartida {
         }
         return players;
     }
+
 
     public Vaso getVaso() {
         return this.vaso;
