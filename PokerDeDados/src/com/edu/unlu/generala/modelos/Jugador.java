@@ -15,19 +15,6 @@ public class Jugador extends Persona {
         return saldo;
     }
 
-    public void agregarSaldo(int saldo){
-        this.saldo += saldo;
-    }
-    public boolean retirarSaldo(int saldo) {
-        if (this.saldo >= saldo) {
-            this.saldo -= saldo;
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-
     public String getNombre() {
         return nombre;
     }
@@ -38,5 +25,18 @@ public class Jugador extends Persona {
 
     public void setApostado(Apuesta apostado) {
         this.apostado = apostado;
+    }
+    public void agregarSaldo(int saldo){
+        this.saldo += saldo;
+    }
+
+    public boolean retirarSaldo(int monto) {
+        if(saldo > monto){
+            saldo -= monto;
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

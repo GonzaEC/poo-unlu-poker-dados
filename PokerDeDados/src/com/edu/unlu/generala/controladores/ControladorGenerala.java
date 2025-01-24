@@ -31,75 +31,15 @@ public class ControladorGenerala implements IControladorRemoto {
         }
 
     }
-    public boolean realizarApuesta(Jugador jugador, int cantidad) {
-        return partida.agregarApuesta(jugador, cantidad);
-    }
-    public List<Apuesta> obtenerApuestas() {
-        return partida.getApuestas();
-    }
-
-    public void iniciarRonda() throws RemoteException {
-        for (Jugador jugador : partida.obtenerTodosLosJugadores()) {
-            // Solicita apuesta
-            vista.mostrarMensaje(jugador.getNombre() + ", realiza tu apuesta:");
-            int monto = vista.obtenerApuesta();
-            jugador.setApostado(new Apuesta(jugador, monto));
-        }
-
-        // Luego realiza las tiradas
-        for (Jugador jugador : partida.obtenerTodosLosJugadores()) {
-            vista.mostrarMensaje(jugador.getNombre() + ", es tu turno para tirar los dados.");
-            partida.getVaso().lanzarDados();
-            vista.mostrarResultadoDados(partida.getVaso().obtenerValores());
-        }
-
-        // Determinar el ganador
-        Jugador ganador = partida.determinarGanador();
-        vista.mostrarMensaje("El ganador es: " + ganador.getNombre() + " y gana el bote de " + partida.getBote());
-        partida.getApuesta().resetearApuestas();
-    }
-
-    public void inciarJuego() throws RemoteException {
-        int catidadJugadores = partida.cantidaJugadores();
-
-        Jugador jugadorActual;
-        int ronda = partida.getTurno();
-        boolean sigueJugando = true;
-        while (partida.sigueJuego() || sigueJugando){
-            vista.mostrarCartelRonda(ronda);
-            //apuestas
-            for (Jugador jugador : partida.obtenerTodosLosJugadores()) {
-                Apuesta apostado = vista.pedirApuesta();
-                jugador.setApostado(apostado);
-
-            }
-            //comienzoRonda
-            for (Jugador jugador : partida.obtenerTodosLosJugadores()){
-                vista.mostrarMensaje(jugador.getNombre() + " lanza los dados...");
-                partida.getVaso().lanzarDados();
-                int[] resultado = partida.getVaso().obtenerValores();
-                
-            }
+    public void seleccionarTiros(List<Integer> indices){
+        if (indices == null || indices.isEmpty()){
+            //aviso de se planta
 
         }
-    }
-    public List<Jugador> obtenerJugadores()  {
-       try{
-           return new ArrayList<Jugador>(partida.obtenerTodosLosJugadores());
-       }catch (RemoteException e){
-           throw new RuntimeException(e);
-       }
-    }
-
-    @Override
-    public <T extends IObservableRemoto> void setModeloRemoto(T modeloRemoto) throws RemoteException {
-        this.partida = (IPartida) modeloRemoto;
-    }
-
-    @Override
-    public void actualizar(IObservableRemoto modelo, Object cambio) throws RemoteException {
-        if(cambio instanceof Integer){
-            int indice = (Integer) cambio;
+        else {
+            partida.tirarDadosSeleccion(indices);
         }
     }
+
+
 }

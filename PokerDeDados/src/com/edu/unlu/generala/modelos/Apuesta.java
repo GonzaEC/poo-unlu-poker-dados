@@ -16,6 +16,7 @@ public class Apuesta {
     public int getCantidad() {
         return cantidad;
     }
+    //chequear si esta el pedo... posiblemente crear una clase apuesta por cada apuesta realizada
     public void setApuesta(int cantidad){
         this.cantidad = cantidad;
 

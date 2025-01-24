@@ -31,4 +31,6 @@ public interface IPartida{
     List<Apuesta> getApuestas();
 
     List<Jugador> getJugadores();
+
+    void tirarDadosSeleccion(List<Integer> indices);
 }

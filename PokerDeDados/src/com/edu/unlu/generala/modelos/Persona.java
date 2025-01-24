@@ -10,4 +10,5 @@ public abstract class Persona {
     public void setName(String name) {
         this.name = name;
     }
+
 }

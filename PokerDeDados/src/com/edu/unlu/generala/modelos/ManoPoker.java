@@ -12,21 +12,34 @@ public class ManoPoker {
         return recuento;
     }
 
-    public String verificarMano(int[] valores) {
+    public int verificarMano(int[] valores) {
         int[] recuento = construirRecuento(valores);
 
-        if (esPokerReal(recuento)) return "Poker Real";
-        if (esPokerCuadruple(recuento)) return "Poker Cuádruple";
-        if (esFull(recuento)) return "Full";
-        if (esEscaleraMayor(recuento)) return "Escalera Mayor";
-        if (esEscaleraMenor(recuento)) return "Escalera Menor";
-        if (esPierna(recuento)) return "Pierna";
-        if (esParDoble(recuento)) return "Par Doble";
-        if (esPar(recuento)) return "Par";
+        if (esPokerReal(recuento)) return 7;
+        if (esPokerCuadruple(recuento)) return 6;
+        if (esFull(recuento)) return 5;
+        if (esEscaleraMayor(recuento)) return 4;
+        if (esEscaleraMenor(recuento)) return 3;
+        if (esPierna(recuento)) return 2;
+        if (esParDoble(recuento)) return 1;
+        if (esPar(recuento)) return 0;
 
-        return "Ninguna Mano";
+        return -1;
     }
+    public int desempatar(int[] valores1, int[] valores2) {
+        int[] recuento1 = construirRecuento(valores1);
+        int[] recuento2 = construirRecuento(valores2);
 
+
+        for (int i = recuento1.length - 1; i >= 0; i--) {
+            if (recuento1[i] > recuento2[i]) {
+                return 1;
+            } else if (recuento1[i] < recuento2[i]) {
+                return -1;
+            }
+        }
+        return 0;
+    }
     private boolean esPar(int[] recuento) {
         for(int recuentos : recuento) {
             if (recuentos == 2){
