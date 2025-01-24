@@ -27,6 +27,29 @@ public class Partida extends ObservableRemoto implements IPartida {
     public ArrayList<Jugador> getJugadores() {
         return jugadores;
     }
+<<<<<<< HEAD
+=======
+
+    public boolean sigueJuego(){
+
+        int contadorJugadoresEnJuego=0;
+
+        for (Jugador jugadore : jugadores) {
+            if (jugadore.getApostado() > 0) {
+                contadorJugadoresEnJuego++;
+            } else {
+                try {
+                    eliminarJugador(jugadore);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return contadorJugadoresEnJuego >= 2;
+    }
+
+
+>>>>>>> 4f647154d506e1c302743dbb5b22eb07ddd07968
 
     @Override
     public ArrayList<Apuesta> getApuestas() {
@@ -52,10 +75,16 @@ public class Partida extends ObservableRemoto implements IPartida {
         return jugadorActual;
     }
 
+<<<<<<< HEAD
     public void avanzarTurno(){
         turno = (turno + 1) % jugadores.size();
         jugadorActual = jugadores.get(turno);
 
+=======
+
+    public Vaso getVaso() {
+        return this.vaso;
+>>>>>>> 4f647154d506e1c302743dbb5b22eb07ddd07968
     }
     //Agregar jugadores
 
