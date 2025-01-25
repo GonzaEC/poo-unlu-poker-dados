@@ -27,8 +27,6 @@ public class Partida extends ObservableRemoto implements IPartida {
     public ArrayList<Jugador> getJugadores() {
         return jugadores;
     }
-<<<<<<< HEAD
-=======
 
     public boolean sigueJuego(){
 
@@ -49,7 +47,6 @@ public class Partida extends ObservableRemoto implements IPartida {
     }
 
 
->>>>>>> 4f647154d506e1c302743dbb5b22eb07ddd07968
 
     @Override
     public ArrayList<Apuesta> getApuestas() {
@@ -75,17 +72,12 @@ public class Partida extends ObservableRemoto implements IPartida {
         return jugadorActual;
     }
 
-<<<<<<< HEAD
-    public void avanzarTurno(){
+    public void avanzarTurno() {
         turno = (turno + 1) % jugadores.size();
         jugadorActual = jugadores.get(turno);
-
-=======
-
-    public Vaso getVaso() {
-        return this.vaso;
->>>>>>> 4f647154d506e1c302743dbb5b22eb07ddd07968
     }
+
+
     //Agregar jugadores
 
     public void agregarJugadores(Jugador player){
@@ -122,8 +114,8 @@ public class Partida extends ObservableRemoto implements IPartida {
         int[] mejorMano = null;
 
         for (Jugador jugador : this.jugadores) {
-            int[] valoresDados = jugador.get().getValoresDados();
-            int puntajeActual = jugador.getManoPoker().obtenerPuntaje(valoresDados);
+            int[] valoresDados = jugador.getVasoJugador().obtenerValores()
+            int puntajeActual = jugador.getMano().verificarMano(valoresDados);
 
             if (puntajeActual > mejorPuntaje) {
                 mejorPuntaje = puntajeActual;
@@ -131,7 +123,7 @@ public class Partida extends ObservableRemoto implements IPartida {
                 mejorMano = valoresDados;
             } else if (puntajeActual == mejorPuntaje) {
                 // Desempate
-                if (jugador.getManoPoker().desempatar(valoresDados, mejorMano) > 0) {
+                if (jugador.getMano().desempatar(valoresDados, mejorMano) > 0) {
                     ganador = jugador;
                     mejorMano = valoresDados;
                 }
