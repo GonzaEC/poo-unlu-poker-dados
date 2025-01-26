@@ -107,14 +107,13 @@ public class Partida extends ObservableRemoto implements IPartida {
         vaso.lanzarSeleccionados(indices);
     }
 
-    //revisar jugada
     public Jugador determinarGanador() {
         Jugador ganador = null;
         int mejorPuntaje = -1;
         int[] mejorMano = null;
 
         for (Jugador jugador : this.jugadores) {
-            int[] valoresDados = jugador.getVasoJugador().obtenerValores()
+            int[] valoresDados = jugador.getVasoJugador().obtenerValores();
             int puntajeActual = jugador.getMano().verificarMano(valoresDados);
 
             if (puntajeActual > mejorPuntaje) {
@@ -132,7 +131,6 @@ public class Partida extends ObservableRemoto implements IPartida {
         return ganador;
     }
 
-    //determinar ganador
 
     //finalizar partida
 }
