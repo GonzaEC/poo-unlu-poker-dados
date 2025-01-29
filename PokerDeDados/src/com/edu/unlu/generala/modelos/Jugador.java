@@ -25,17 +25,22 @@ public class Jugador extends Persona {
     public int getApostado() {
         return apostado.getCantidad();
     }
+
     public Vaso getVasoJugador(){return this.vasoJugador;}
+
     public int getManoPoker(){
         int[] valoresDados = vasoJugador.obtenerValores();
         return manoPoker.verificarMano(valoresDados);
     }
+
     public ManoPoker getMano(){
         return this.manoPoker;
     }
+
     public void setApostado(Apuesta apostado) {
         this.apostado = apostado;
     }
+
     public void agregarSaldo(int saldo){
         this.saldo += saldo;
     }

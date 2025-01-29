@@ -37,7 +37,7 @@ public class ControladorGenerala implements IControladorRemoto {
 
         }
         else {
-            partida.tirarDadosSeleccion(indices);
+            partida.tirarDadosSeleccion((ArrayList<Integer>) indices);
         }
     }
 

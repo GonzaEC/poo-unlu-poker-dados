@@ -23,30 +23,11 @@ public class Partida extends ObservableRemoto implements IPartida {
         this.bote = 0;
     }
 
+    //gets
     @Override
     public ArrayList<Jugador> getJugadores() {
         return jugadores;
     }
-
-    public boolean sigueJuego(){
-
-        int contadorJugadoresEnJuego=0;
-
-        for (Jugador jugadore : jugadores) {
-            if (jugadore.getApostado() > 0) {
-                contadorJugadoresEnJuego++;
-            } else {
-                try {
-                    eliminarJugador(jugadore);
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-        return contadorJugadoresEnJuego >= 2;
-    }
-
-
 
     @Override
     public ArrayList<Apuesta> getApuestas() {
@@ -68,18 +49,53 @@ public class Partida extends ObservableRemoto implements IPartida {
         return bote;
     }
 
+    @Override
     public Jugador getJugadorActual() {
         return jugadorActual;
     }
 
-    public void avanzarTurno() {
-        turno = (turno + 1) % jugadores.size();
-        jugadorActual = jugadores.get(turno);
+    //sets
+    @Override
+    public void setBote() throws RemoteException {
+
+    }
+
+    //metodos clase
+    @Override
+    public int cantidaJugadores() {
+        return 0;
+    }
+
+    @Override
+    public boolean sigueJuego() {
+        return false;
+    }
+
+    @Override
+    public void agregarJugador(Jugador jugador) throws RemoteException {
+
+    }
+
+    @Override
+    public void eliminarJugador(Jugador jugador) throws RemoteException {
+
+    }
+
+    @Override
+    public List<Jugador> obtenerTodosLosJugadores() throws RemoteException {
+        return List.of();
     }
 
 
-    //Agregar jugadores
 
+    @Override
+    public boolean agregarApuesta(Jugador jugador, int cantidad) {
+        return false;
+    }
+
+
+
+    //Agregar jugadores
     public void agregarJugadores(Jugador player){
             jugadores.add(player);
 
@@ -95,18 +111,18 @@ public class Partida extends ObservableRemoto implements IPartida {
         else {
             return false;
         }
-
-
-
     }
+
     //tirar dados
     public void tirarDados() {
         vaso.lanzarDados();
     }
+    //tirar dados seleccionados
+    @Override
     public void tirarDadosSeleccion(ArrayList<Integer> indices){
         vaso.lanzarSeleccionados(indices);
     }
-
+    //determina ganador con mayor mano
     public Jugador determinarGanador() {
         Jugador ganador = null;
         int mejorPuntaje = -1;
@@ -131,6 +147,10 @@ public class Partida extends ObservableRemoto implements IPartida {
         return ganador;
     }
 
+    public void avanzarTurno() {
+        turno = (turno + 1) % jugadores.size();
+        jugadorActual = jugadores.get(turno);
+    }
 
     //finalizar partida
 }

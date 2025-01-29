@@ -1,6 +1,7 @@
 package com.edu.unlu.generala.modelos;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 
 public interface IPartida{
@@ -24,6 +25,9 @@ public interface IPartida{
 
     Vaso getVaso();
 
+    //tirar dados seleccionados
+    void tirarDadosSeleccion(ArrayList<Integer> indices);
+
     Jugador determinarGanador();
 
     boolean agregarApuesta(Jugador jugador, int cantidad);
@@ -32,5 +36,6 @@ public interface IPartida{
 
     List<Jugador> getJugadores();
 
-    void tirarDadosSeleccion(List<Integer> indices);
+    Jugador getJugadorActual();
+
 }
