@@ -54,12 +54,6 @@ public class Partida extends ObservableRemoto implements IPartida {
         return jugadorActual;
     }
 
-    //sets
-    @Override
-    public void setBote() throws RemoteException {
-
-    }
-
     //metodos clase
     @Override
     public int cantidaJugadores() {
@@ -73,12 +67,13 @@ public class Partida extends ObservableRemoto implements IPartida {
 
     @Override
     public void agregarJugador(Jugador jugador) throws RemoteException {
+        jugadores.add(jugador);
 
     }
 
     @Override
     public void eliminarJugador(Jugador jugador) throws RemoteException {
-
+        jugadores.remove(jugador);
     }
 
     @Override
@@ -94,12 +89,6 @@ public class Partida extends ObservableRemoto implements IPartida {
     }
 
 
-
-    //Agregar jugadores
-    public void agregarJugadores(Jugador player){
-            jugadores.add(player);
-
-    }
 
     //realizar apuestas
     public boolean realizarApuesta(Jugador player, int monto){

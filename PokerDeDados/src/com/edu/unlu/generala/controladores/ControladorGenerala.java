@@ -22,24 +22,38 @@ public class ControladorGenerala implements IControladorRemoto {
     public void setVista(IVista vista) {
         this.vista = vista;
     }
-    public void registrarJugadores(String nombre, int saldoInicial) throws RemoteException {
-        Jugador jugador = new Jugador(nombre, saldoInicial);
-        try{
-            this.partida.agregarJugador(jugador);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+    public void iniciar(){
+        if(partida.getJugadores().size() < 2){
+            //notificar observador
+            return;
         }
+        //notificar inicio
+        partida.avanzarTurno();
 
     }
-    public void seleccionarTiros(List<Integer> indices){
-        if (indices == null || indices.isEmpty()){
-            //aviso de se planta
 
-        }
-        else {
-            partida.tirarDadosSeleccion((ArrayList<Integer>) indices);
+    public void registrarJugador(Jugador player){
+        partida.agregarJugador(player);
+        //notificar
+    }
+
+    public void realizarApuestas(Jugador player, int monto){
+        if(partida.agregarApuesta()){
+            //notificar
         }
     }
+
+    public void tirarDados(){
+        partida.tirarDados();
+        //notificar
+    }
+
+    public void tirarDadosSeleccion(ArrayList<Integer> indice){
+        partida.tirarDadosSeleccion(indice);
+        //notificar
+    }
+
+    public void 
 
 
 }
