@@ -53,7 +53,15 @@ public class ControladorGenerala implements IControladorRemoto {
         //notificar
     }
 
-    public void 
+    public void cambiarTurno(){
+        partida.avanzarTurno();
+        //notificar
+    }
+
+    public void finalizarPartida(){
+        Jugador ganador = partida.determinarGanador();
+        //notificar
+    }
 
 
 }
