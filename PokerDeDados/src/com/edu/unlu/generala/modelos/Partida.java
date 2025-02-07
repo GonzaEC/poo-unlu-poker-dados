@@ -21,6 +21,7 @@ public class Partida extends ObservableRemoto implements IPartida {
         this.vaso = new Vaso();
         this.turno = 0;
         this.bote = 0;
+        jugadorActual = null;
     }
 
     //gets
@@ -57,12 +58,12 @@ public class Partida extends ObservableRemoto implements IPartida {
     //metodos clase
     @Override
     public int cantidaJugadores() {
-        return 0;
+        return jugadores.size();
     }
 
     @Override
     public boolean sigueJuego() {
-        return false;
+        return jugadores.size() > 2 && determinarGanador() == null;
     }
 
     @Override
@@ -78,13 +79,18 @@ public class Partida extends ObservableRemoto implements IPartida {
 
     @Override
     public List<Jugador> obtenerTodosLosJugadores() throws RemoteException {
-        return List.of();
+        return new ArrayList<>(jugadores);
     }
 
 
 
     @Override
     public boolean agregarApuesta(Jugador jugador, int cantidad) {
+        if (jugador.retirarSaldo(cantidad)){
+            apuestas.add(new Apuesta(jugador, cantidad));
+            bote += cantidad;
+            return true;
+        }
         return false;
     }
 
