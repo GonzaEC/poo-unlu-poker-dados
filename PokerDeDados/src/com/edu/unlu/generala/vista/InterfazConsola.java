@@ -7,6 +7,7 @@ import com.edu.unlu.generala.modelos.Jugador;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 
 public class InterfazConsola extends JFrame implements IVista {
     private JPanel panelPrincipal;
@@ -18,6 +19,9 @@ public class InterfazConsola extends JFrame implements IVista {
     private String nombre;
     private int saldoInicial;
     private ControladorGenerala controlador;
+
+
+    private EstadoVistaConsola estadoActual = EstadoVistaConsola.MENU_PRINCIPAL;
 
 
     public InterfazConsola(ControladorGenerala controlador){
@@ -38,34 +42,9 @@ public class InterfazConsola extends JFrame implements IVista {
         });
 
         mostrarMenuPrincipal();
-    }
-    private void print(String string) {
-        txtSalida.append(string);
+
     }
 
-    private void println(String string) {
-        print(string + "\n");
-    }
-
-
-    private void procesarEntrada(String entrada) {
-        switch (estado) {
-            case MENU_PRINCIPAL:
-                procesarEntradaMenuPrincipal(entrada);
-                break;
-            case ALTA_NOMBRE:
-            case ALTA_SALDO_INICIAL:
-                registrarJugador(entrada);
-                break;
-            case INICIAR_PARTIDA:
-                iniciarPartida();
-                break;
-            default:
-                println("Error: Estado inesperado. Reiniciando...");
-                mostrarMenuPrincipal();
-                break;
-        }
-    }
     private void mostrarMenuPrincipal() {
         estado = EstadoVistaConsola.MENU_PRINCIPAL;
         println("\n-- MENÚ PRINCIPAL --");
@@ -74,117 +53,82 @@ public class InterfazConsola extends JFrame implements IVista {
         println("3. Salir");
         print("Seleccione una opción: ");
     }
+
+    private void procesarEntrada(String entrada){
+        switch (estadoActual){
+            case MENU_PRINCIPAL:
+                procesarEntradaMenuPrincipal(entrada);
+                break;
+            case ALTA_JUGADOR:
+                registrarJugador(entrada);
+                break;
+            case ALTA_APUESTA:
+                realizarApuesta(entrada);
+                break;
+            case TIRAR_DADOS:
+                tirarDados(entrada);
+                break;
+            case MANTENER_DADOS:
+                mantenerDados(entrada);
+                break;
+            default:
+                println("Estado inválido. Reiniciando...");
+                estadoActual = EstadoVistaConsola.MENU_PRINCIPAL;
+                mostrarMenuPrincipal();
+                break;
+
+        }
+    }
+
+    private void realizarApuesta(String entrada) {
+
+    }
+
     private void procesarEntradaMenuPrincipal(String entrada) {
         switch (entrada) {
-            case "1":
-                estado = EstadoVistaConsola.ALTA_NOMBRE;
-                println("\nIngrese el nombre del primer jugador: ");
+            case "1": // Registrar jugador
+                estadoActual = EstadoVistaConsola.ALTA_JUGADOR;
+                println("Ingrese el nombre del jugador: ");
                 break;
-            case "2":
-                verHistorialDePartidas();
+            case "2": // Iniciar partida
+                if (controlador.getJugadores().size() < 2) {
+                    println("Se necesitan al menos 2 jugadores para iniciar.");
+                } else {
+                    try {
+                        controlador.iniciar();
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
+                    }
+                    estadoActual = EstadoVistaConsola.TIRAR_DADOS;
+                    println(controlador.jugadorActual());
+                }
                 break;
-            case "3":
-                println("Gracias por jugar a la Generala. ¡Hasta pronto!");
+            case "3": // Salir
                 System.exit(0);
                 break;
             default:
                 println("Opción inválida. Intente nuevamente.");
-        }
-    }
-    private void registrarJugador(String entrada) {
-        switch (estado) {
-            case ALTA_NOMBRE:
-                nombre = entrada;
-                println("Ingrese el saldo inicial para " + nombre + ": ");
-                estado = EstadoVistaConsola.ALTA_SALDO_INICIAL;
-                break;
-            case ALTA_SALDO_INICIAL:
-                try {
-                    saldoInicial = Integer.parseInt(entrada);
-                    if (controlador.registrarJugadores(nombre, saldoInicial)) {
-                        println("\nJugador registrado: " + nombre + " con saldo inicial $" + saldoInicial);
-                        estado = EstadoVistaConsola.ALTA_OTRO_JUGADOR;
-                        println("Ingrese '1' para agregar otro jugador o 'N' para iniciar la partida: ");
-                    } else {
-                        println("Error al registrar el jugador. Intente nuevamente.");
-                        estado = EstadoVistaConsola.ALTA_NOMBRE;
-                    }
-                } catch (NumberFormatException e) {
-                    println("Saldo inválido. Ingrese un número entero.");
-                }
-                break;
-            case ALTA_OTRO_JUGADOR:
-                if (entrada.equalsIgnoreCase("1")) {
-                    estado = EstadoVistaConsola.ALTA_NOMBRE;
-                    println("\nIngrese el nombre del siguiente jugador:");
-                } else if (entrada.equalsIgnoreCase("N")) {
-                    println("\nRegistro de jugadores completado. ¡Comienza la partida!");
-                    estado = EstadoVistaConsola.INICIAR_PARTIDA;
-                    iniciarPartida();
-                } else {
-                    println("Opción inválida. Use '1' para agregar jugador o 'N' para continuar.");
-                }
+                mostrarMenuPrincipal();
                 break;
         }
     }
-    private void iniciarPartida() {
-        controlador.iniciarPartida();
-        int ronda = 1;
-        while (!controlador.juegoTerminado()) {
-            println("\n--- RONDA " + ronda + " ---");
-            mostrarSaldos();
-            Apuesta apuesta = pedirApuesta();
-            if (apuesta != null) {
-                controlador.realizarApuesta(apuesta);
-                mostrarResultadoDados(controlador.lanzarDados());
-            }
-            ronda++;
+    private void registrarJugador(String nombre) {
+        try {
+            controlador.registrarJugador(nombre, 100); // Saldo inicial de 100
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
-        println("\n--- Fin del Juego ---");
-        mostrarSaldos();
-        println("Gracias por jugar. ¡Hasta la próxima!");
+        println("Jugador registrado: " + nombre);
+        estadoActual = EstadoVistaConsola.MENU_PRINCIPAL;
         mostrarMenuPrincipal();
     }
-    @Override
-    public void mostrarJugadoresRegistrados() {
-        println("Jugadores registrados:");
-        controlador.obtenerJugadores().forEach(jugador ->
-                println(" - Nombre: " + jugador.getNombre() + ", Saldo: $" + jugador.getSaldo())
-        );
-    }
-    private void verHistorialDePartidas() {
-    }
-    public void mostrarCartelRonda(int ronda){
-        println("---------------------------");
-        println("|          RONDA %d          |");
-        println("---------------------------");
+
+    private void print(String string) {
+        txtSalida.append(string);
     }
 
-    private void mostrarSaldos() {
-        println("\n--- Saldos Restantes ---");
-        for (Jugador jugador : controlador.obtenerJugadores()) {
-            println(jugador.getNombre() + ": $" + jugador.getSaldo());
-        }
-    }
-    public void mostrarApuestas() {
-        println("\n--- Apuestas Realizadas ---");
-        for (Apuesta apuesta : controlador.obtenerApuestas()) {
-            println(apuesta.getApostador().getNombre() + " apostó $" + apuesta.getCantidad());
-        }
-    }
-    @Override
-    public Apuesta pedirApuesta() {
-        return null;
-    }
-
-    @Override
-    public void mostrarResultadoDados(int[] ints) {
-        println("Resultados de los dados: " + ints);
-    }
-
-    @Override
-    public int obtenerApuesta() {
-        return 0;
+    private void println(String string) {
+        print(string + "\n");
     }
 
     @Override

@@ -20,7 +20,7 @@ public class ControladorGenerala implements IControladorRemoto {
         this.vista = vista;
     }
 
-    public void iniciar(){
+    public void iniciar() throws RemoteException {
         if(partida.getJugadores().size() < 2){
             //notificar observador
             return;
@@ -82,10 +82,11 @@ public class ControladorGenerala implements IControladorRemoto {
             if (jugador.getSaldo() <= 0) {
                 perdedores.add(jugador);
             }
-        }
+        }                                                                                                                                                                                                                                                           zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
 
         return perdedores;
     }
+
     public String getGanador(){
         String nombre = null;
         Jugador ganador = partida.determinarGanador();
