@@ -13,6 +13,9 @@ public class Partida extends ObservableRemoto implements IPartida {
     private int turno;
     private int bote;
     private Jugador jugadorActual;
+    private int tiradasRestantes;
+    private static final int MAX_TIRADAS = 2;
+
 
 
     public Partida() {
@@ -22,8 +25,19 @@ public class Partida extends ObservableRemoto implements IPartida {
         this.turno = 0;
         this.bote = 0;
         jugadorActual = null;
+        this.tiradasRestantes = MAX_TIRADAS;
     }
 
+    public void setTurno(int turno) {
+        this.turno = turno;
+    }
+
+    public void setBote(int bote) {
+        this.bote = bote;
+    }
+    public int getTiradasRestantes() {
+        return tiradasRestantes;
+    }
     //gets
     @Override
     public ArrayList<Jugador> getJugadores() {
@@ -82,8 +96,14 @@ public class Partida extends ObservableRemoto implements IPartida {
         return new ArrayList<>(jugadores);
     }
 
-
-
+    public void usarTirada() {
+        if (tiradasRestantes > 0) {
+            tiradasRestantes--;
+        }
+    }
+    public void reiniciarTiradas() {
+        this.tiradasRestantes = MAX_TIRADAS;
+    }
     @Override
     public boolean agregarApuesta(Jugador jugador, int cantidad) {
         if (jugador.retirarSaldo(cantidad)){

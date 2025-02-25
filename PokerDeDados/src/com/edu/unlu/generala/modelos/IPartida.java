@@ -37,4 +37,14 @@ public interface IPartida{
     Jugador getJugadorActual();
 
     void tirarDados();
+
+    void setBote(int i);
+
+    void setTurno(int i);
+
+    int getTiradasRestantes();
+
+    void usarTirada();
+
+    void reiniciarTiradas();
 }

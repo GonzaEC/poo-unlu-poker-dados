@@ -12,7 +12,7 @@ public class Vaso {
         }
     }
 
-    xºpublic Dado[] getDados() {
+    public Dado[] getDados() {
         return dados;
     }
     public int verDado(int dado){
