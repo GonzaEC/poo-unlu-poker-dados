@@ -48,9 +48,10 @@ public class InterfazConsola extends JFrame implements IVista {
     private void mostrarMenuPrincipal() {
         estado = EstadoVistaConsola.MENU_PRINCIPAL;
         println("\n-- MENU PRINCIPAL --");
-        println("1. Iniciar nueva partida");
-        println("2. Ver historial de partidas");
-        println("3. Salir");
+        println("1. Registrar jugador");
+        println("2. Iniciar nueva partida");
+        println("3. Ver historial de partidas");
+        println("4. Salir");
         print("Seleccione una opcion: ");
     }
 
@@ -61,6 +62,13 @@ public class InterfazConsola extends JFrame implements IVista {
                 break;
             case ALTA_JUGADOR:
                 registrarJugador(entrada);
+                break;
+            case MENU_JUGADOR:
+                try {
+                    procesarEntradaMenuJugador(entrada);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case RONDA_APUESTAS_INICIAL:
                 procesarApuesta(entrada);
@@ -119,9 +127,18 @@ public class InterfazConsola extends JFrame implements IVista {
             } else {
                 if (controlador.realizarApuesta(jugadorActual, monto)) {
                     println("Apuesta realizada: $" + monto);
-                    estadoActual = EstadoVistaConsola.TIRAR_DADOS; // Cambiar al estado de tirar dados
-                    println("Es el turno de: " + jugadorActual.getNombre());
-                } else {
+
+                    // Verificar si todos los jugadores han apostado
+                    if (controlador.todosHanApostado()) {
+                        estadoActual = EstadoVistaConsola.TIRAR_DADOS; // Cambiar al estado de tirar dados
+                        println("Todos los jugadores han apostado. Es el turno de tirar dados.");
+                        mostrarMenuJugador();
+                    } else {
+                        controlador.avanzarTurno(); // Avanzar al siguiente jugador
+                        println("Es el turno de: " + controlador.getJugadorActual().getNombre());
+                        println("Ingrese el monto de la apuesta: ");
+                    }
+                }else{
                     println("Error al realizar la apuesta.");
                 }
             }
@@ -171,6 +188,8 @@ public class InterfazConsola extends JFrame implements IVista {
                     throw new RuntimeException(e);
                 }
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
     public void mostrarResultadoDados(int[] valoresDados) {
@@ -222,12 +241,15 @@ public class InterfazConsola extends JFrame implements IVista {
                     } catch (RemoteException e) {
                         throw new RuntimeException(e);
                     }
-                    estadoActual = EstadoVistaConsola.ALTA_APUESTA;
+                    estadoActual = EstadoVistaConsola.RONDA_APUESTAS_INICIAL;
                     println(controlador.jugadorActual());
                     println("Ingrese el monto de la apuesta: ");
                 }
                 break;
             case "3": // Salir
+                //asdsjo
+                break;
+            case "4":
                 System.exit(0);
                 break;
             default:
@@ -248,7 +270,7 @@ public class InterfazConsola extends JFrame implements IVista {
     }
     private void mostrarMenuJugador() {
         estadoActual = EstadoVistaConsola.MENU_JUGADOR;
-        println("\n-- MENÚ DEL JUGADOR --");
+        println("\n-- TURNO DE: " + controlador.getJugadorActual().getNombre() + " --");
         println("1. Apostar");
         println("2. Tirar dados");
         println("3. Mantener dados");

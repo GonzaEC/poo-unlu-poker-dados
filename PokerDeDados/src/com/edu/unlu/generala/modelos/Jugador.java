@@ -6,7 +6,7 @@ public class Jugador extends Persona {
     private Apuesta apostado;
     private Vaso vasoJugador;
     private ManoPoker manoPoker;
-
+    private boolean haApostado = false;
 
     public Jugador(String nombre, int saldoInicial) {
         this.nombre = nombre;
@@ -53,5 +53,12 @@ public class Jugador extends Persona {
         else {
             return false;
         }
+    }
+
+    public boolean haApostado() {
+        return haApostado;
+    }
+    public void setHaApostado(boolean haApostado) {
+        this.haApostado = haApostado;
     }
 }

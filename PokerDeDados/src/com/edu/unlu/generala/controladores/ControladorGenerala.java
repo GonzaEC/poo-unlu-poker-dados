@@ -4,18 +4,19 @@ import ar.edu.unlu.rmimvc.cliente.IControladorRemoto;
 import com.edu.unlu.generala.modelos.Apuesta;
 import com.edu.unlu.generala.modelos.IPartida;
 import com.edu.unlu.generala.modelos.Jugador;
+import com.edu.unlu.generala.modelos.Partida;
 import com.edu.unlu.generala.vista.IVista;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ControladorGenerala implements IControladorRemoto {
-    private IPartida partida;
+public class ControladorGenerala {
+    private Partida partida;
     IVista vista;
 
     public ControladorGenerala(){
-        //this.partida = new Partida();
+        this.partida = new Partida();
     }
     public void setVista(IVista vista) {
         this.vista = vista;
@@ -87,7 +88,12 @@ public class ControladorGenerala implements IControladorRemoto {
 
 
     public boolean realizarApuesta(Jugador jugador, int monto){
-        return partida.agregarApuesta(jugador,monto);
+        if (jugador.getSaldo() >= monto) {
+            partida.agregarApuesta(jugador, monto);
+            jugador.setHaApostado(true); // Ma
+            return true;
+        }
+        return false;
     }
     public Jugador getJugadorActual(){
         return partida.getJugadorActual();
@@ -120,12 +126,8 @@ public class ControladorGenerala implements IControladorRemoto {
     }
 
     public void cambiarTurno(){
-        try {
-            partida.reiniciarTiradas();
-            partida.avanzarTurno();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+        partida.reiniciarTiradas();
+        partida.avanzarTurno();
     }
     public List<Jugador> getJugadores(){
         return partida.getJugadores();
@@ -154,7 +156,7 @@ public class ControladorGenerala implements IControladorRemoto {
             if (jugador.getSaldo() <= 0) {
                 perdedores.add(jugador);
             }
-        }                                                                                                                                                                                                                                                           zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+        }
 
         return perdedores;
     }
@@ -177,4 +179,16 @@ public class ControladorGenerala implements IControladorRemoto {
         partida.setTurno(0);
     }
 
+    public void avanzarTurno() {
+        partida.avanzarTurno();
+    }
+
+    public boolean todosHanApostado() {
+        for (Jugador jugador : getJugadores()) {
+            if (!jugador.haApostado()) { // Verificar si el jugador ha apostado
+                return false;
+            }
+        }
+        return true;
+    }
 }

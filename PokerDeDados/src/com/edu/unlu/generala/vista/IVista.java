@@ -8,13 +8,7 @@ public interface IVista {
     void mostrarMensaje(String mensaje);
     void iniciar();
 
-    void mostrarJugadoresRegistrados();
-
-    void mostrarCartelRonda(int ronda);
-
-    Apuesta pedirApuesta();
 
     void mostrarResultadoDados(int[] ints);
 
-    int obtenerApuesta();
 }
