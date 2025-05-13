@@ -1,6 +1,7 @@
 package com.edu.unlu.generala.vista;
 
 import com.edu.unlu.generala.controladores.ControladorGenerala;
+import com.edu.unlu.generala.modelos.Jugador;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -52,21 +53,35 @@ public class InterfazConsola extends JFrame implements IVista {
     private void procesarEntrada(String entrada){
         switch (estadoActual){
             case MENU_PRINCIPAL:
-                limpiarPantalla():
+                limpiarPantalla();
                 procesarEntradaMenuPrincipal(entrada);
                 break;
             case AGREGAR_JUGADOR:
                 agregarJugador();
+                break;
+            case MENU_JUGADOR:
+                procesarEntradaMenuJugador(entrada);
+                break;
+        }
+    }
+
+    private void procesarEntradaMenuJugador(String entrada) {
+        switch (entrada){
+            case "1":
 
         }
     }
 
+    private void limpiarPantalla() {
+        txtSalida.setText("");
+    }
+
     private void agregarJugador() {
-        if(!txtEntrada.getText().equals("")) {
+        if(!txtEntrada.getText().isEmpty()) {
             nombreJugador= txtEntrada.getText();
             if(!controlador.existeJugador(nombreJugador)){
                 controlador.agregarJugador(nombreJugador);
-                println("   Jugador agregado con exito");
+                println(" Jugador agregado con exito");
                 mostrarMenuPrincipal();
             }
             else{
@@ -74,7 +89,7 @@ public class InterfazConsola extends JFrame implements IVista {
             }
         }
         else{
-            println("   Igrese un nombre valido: ");
+            println(" Ingrese un nombre valido: ");
         }
 
     }
@@ -86,10 +101,23 @@ public class InterfazConsola extends JFrame implements IVista {
                 println("Nombre del jugador: ");
                 estadoActual = EstadoVistaConsola.AGREGAR_JUGADOR;
                 break;
+            case "2":
+                println("Lista de jugadores:");
+                for (Jugador j : controlador.getJugadores()) {
+                    println(" - " + j.getNombre());
+                }
+                mostrarMenuPrincipal(); // volver al menú
+                break;
+
+            case "3":
+                controlador.iniciar();
+                mostrarMenuJugador();
+
         }
+
     }
 
-    private void menuJugador() {
+    private void mostrarMenuJugador() {
         estadoActual = EstadoVistaConsola.MENU_JUGADOR;
         println("\n-- TURNO DE: " + controlador.getJugadorActual().getNombre() + " --");
         println("1. Apostar");

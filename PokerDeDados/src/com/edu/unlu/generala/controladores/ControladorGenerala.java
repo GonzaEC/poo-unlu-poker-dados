@@ -108,12 +108,6 @@ public class ControladorGenerala {
         return partida.getJugadorActual();
     }
 
-    public void registrarJugador(String nombre, int saldo) throws RemoteException {
-        Jugador player = new Jugador(nombre, saldo);
-        partida.agregarJugador(player);
-        //notificar
-    }
-
     public void realizarApuestas(Jugador player, int monto){
         if(partida.agregarApuesta(player, monto)){
             //notificar
@@ -199,5 +193,17 @@ public class ControladorGenerala {
             }
         }
         return true;
+    }
+
+    public boolean existeJugador(String nombreJugador) {
+        boolean resultado = false;
+        ArrayList<Jugador> jugadores = new ArrayList<>();
+        jugadores = partida.getJugadores();
+        for (Jugador gamer : jugadores){
+            if(gamer.getNombre().equals(nombreJugador)){
+                resultado= true;
+            }
+        }
+        return resultado;
     }
 }
