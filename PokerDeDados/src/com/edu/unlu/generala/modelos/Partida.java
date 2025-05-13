@@ -81,8 +81,8 @@ public class Partida extends ObservableRemoto implements IPartida {
     }
 
     @Override
-    public void agregarJugador(Jugador jugador) throws RemoteException {
-        jugadores.add(jugador);
+    public void agregarJugador(String nombre) throws RemoteException {
+        this.jugadores.add(new Jugador(nombre, 0));
 
     }
 

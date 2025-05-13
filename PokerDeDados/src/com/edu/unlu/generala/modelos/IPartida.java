@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface IPartida{
-    void agregarJugador(Jugador jugador) throws RemoteException;
+    void agregarJugador(String jugador) throws RemoteException;
 
     void eliminarJugador(Jugador jugador) throws RemoteException;
 

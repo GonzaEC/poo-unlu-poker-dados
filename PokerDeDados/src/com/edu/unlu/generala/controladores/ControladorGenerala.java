@@ -32,6 +32,15 @@ public class ControladorGenerala {
 
     }
 
+    public void agregarJugador(String jugador){
+        try {
+            partida.agregarJugador(jugador);
+        }catch (RemoteException e){
+            //vista
+            e.printStackTrace();
+        }
+    }
+
 
     public String evaluarJugada(){
         Jugador jugadorActual = getJugadorActual();

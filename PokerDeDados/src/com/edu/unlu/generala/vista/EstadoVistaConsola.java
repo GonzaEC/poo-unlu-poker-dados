@@ -3,7 +3,7 @@ package com.edu.unlu.generala.vista;
 public enum EstadoVistaConsola {
     MENU_PRINCIPAL,
     MENU_JUGADOR,
-    ALTA_JUGADOR,
+    AGREGAR_JUGADOR,
     ALTA_APUESTA,
     RONDA_APUESTAS_INICIAL,
     TIRAR_DADOS,
