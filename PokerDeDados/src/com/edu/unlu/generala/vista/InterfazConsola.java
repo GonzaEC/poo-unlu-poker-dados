@@ -6,6 +6,7 @@ import com.edu.unlu.generala.modelos.Jugador;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 
 public class InterfazConsola extends JFrame implements IVista {
     private JPanel panelPrincipal;
@@ -45,8 +46,8 @@ public class InterfazConsola extends JFrame implements IVista {
         println(txtEntrada.getText());
         try {
             procesarEntrada(txtEntrada.getText());
-        } catch (RemoteException ex) {
-            throw new RuntimeException(ex);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
         txtEntrada.setText("");
     }
@@ -59,17 +60,21 @@ public class InterfazConsola extends JFrame implements IVista {
             case AGREGAR_JUGADOR:
                 agregarJugador();
                 break;
-            case MENU_JUGADOR:
-                procesarEntradaMenuJugador(entrada);
+            case MENU_JUGADOR_DADOS:
+
+                procesarEntradaMenuJugadorDados(entrada);
+                break;
+            case DEPOSITAR:
+                //depositarSaldo(entrada);
+                break;
+            case TIRAR_DADOS:
+
                 break;
         }
     }
-
-    private void procesarEntradaMenuJugador(String entrada) {
-        switch (entrada){
-            case "1":
-
-        }
+    // ! creo que no sirve
+    private void depositarSaldo(String entrada) {
+        controlador.depositar(entrada);
     }
 
     private void limpiarPantalla() {
@@ -108,30 +113,69 @@ public class InterfazConsola extends JFrame implements IVista {
                 }
                 mostrarMenuPrincipal(); // volver al menú
                 break;
-
             case "3":
                 controlador.iniciar();
-                mostrarMenuJugador();
+                mostrarMenuJugadorDados();
+                break;
+            case "0":
+                System.exit(0);
+                break;
 
+            default:
+                println("Opcion invalida, vuelva a ingresar");
+                mostrarMenuPrincipal();
         }
 
     }
+    private void procesarEntradaMenuJugadorDados(String entrada) {
+        switch (entrada){
+            case "1":
+                controlador.tirarDados();
+                mostrarMenuJugadorDados();
+                break;
+            case "2":
 
-    private void mostrarMenuJugador() {
-        estadoActual = EstadoVistaConsola.MENU_JUGADOR;
+                break;
+            case "3":
+
+                break;
+            case "4":
+
+                break;
+
+
+        }
+    }
+    private void mostrarMenuJugadorDados() {
+        estadoActual = EstadoVistaConsola.MENU_JUGADOR_DADOS;
         println("\n-- TURNO DE: " + controlador.getJugadorActual().getNombre() + " --");
-        println("1. Apostar");
-        println("2. Tirar dados");
-        println("3. Mantener dados");
-        println("4. Plantarse");
-        print("Seleccione una opcion: ");
+        println("== MENÚ DE JUGADAS ==");
+        println("1. Tirar todos los dados");
+        println("2. Apartar dados y volver a tirar los restantes");
+        println("3. Plantarse (no tirar más)");
+        println("Seleccione una opción:");
+    }
+    private void mostrarMenuJugadorApuestas() {
+        estadoActual = EstadoVistaConsola.MENU_JUGADOR_APUESTAS;
+        println("\n--- FASE DE APUESTAS ---");
+        println("\n-- TURNO DE: " + controlador.getJugadorActual().getNombre() + " --");
+        println("Tu apuesta actual: $" + controlador.apuestaActual());
+        println("Apuesta máxima: $" + controlador.apuestaMaxima());
+        println("Pozo actual: $" + controlador.pozoActual());
+        println("== MENÚ DE APUESTAS ==");
+        println("1. Apostar ");
+        println("2. Igualar apuesta");
+        println("3. Subir apuesta");
+        println("4. Pasar");
+        println("5. Retirarse");
+        println("Seleccione una opción:");
     }
     private void mostrarMenuPrincipal() {
         println("\n-- MENU PRINCIPAL --");
         println("1. Agregar jugador");
         println("2. Mostrar lista de jugadores");
         println("3. Comenzar partida");
-        println("4. Salir");
+        println("0. Salir");
         print("Seleccione una opcion: ");
         estadoActual = EstadoVistaConsola.MENU_PRINCIPAL;
     }

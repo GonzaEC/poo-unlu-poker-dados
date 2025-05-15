@@ -16,6 +16,7 @@ public class Partida extends ObservableRemoto implements IPartida {
     private int tiradasRestantes;
     private static final int MAX_TIRADAS = 2;
 
+    private int apuestaMaxima;
 
 
     public Partida() {
@@ -82,7 +83,7 @@ public class Partida extends ObservableRemoto implements IPartida {
 
     @Override
     public void agregarJugador(String nombre) throws RemoteException {
-        this.jugadores.add(new Jugador(nombre, 0));
+        this.jugadores.add(new Jugador(nombre, 100));
 
     }
 
@@ -107,26 +108,14 @@ public class Partida extends ObservableRemoto implements IPartida {
     @Override
     public boolean agregarApuesta(Jugador jugador, int cantidad) {
         if (jugador.retirarSaldo(cantidad)){
-            apuestas.add(new Apuesta(jugador, cantidad));
+            jugador.apostar(cantidad);
+            apuestas.add(jugador.getApuesta());
             bote += cantidad;
             return true;
         }
         return false;
     }
 
-
-
-    //realizar apuestas
-    public boolean realizarApuesta(Jugador player, int monto){
-        if(player.retirarSaldo(monto)){
-            apuestas.add(new Apuesta(player, monto));
-            bote += monto;
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
 
     //tirar dados
     public void tirarDados() {
@@ -165,6 +154,10 @@ public class Partida extends ObservableRemoto implements IPartida {
     public void avanzarTurno() {
         turno = (turno + 1) % jugadores.size();
         jugadorActual = jugadores.get(turno);
+    }
+
+    public int getApuestaMaxima() {
+        return apuestaMaxima;
     }
 
     //finalizar partida

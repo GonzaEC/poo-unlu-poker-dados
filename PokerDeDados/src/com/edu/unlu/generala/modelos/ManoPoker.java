@@ -3,6 +3,10 @@ package com.edu.unlu.generala.modelos;
 public class ManoPoker {
     private Vaso vaso;
 
+    public ManoPoker(Vaso vaso) {
+        this.vaso = vaso;
+    }
+
     public int[] construirRecuento(int[] valores){
         int[] recuento = new int [6];
 

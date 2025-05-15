@@ -119,7 +119,7 @@ public class ControladorGenerala {
             partida.tirarDados();
             partida.usarTirada();
         }else {
-            vista.mostrarMensaje("No quedan mas tiradas en este turno!");
+            vista.mostrarMensaje("No quedan mas tiradas. ");
         }
     }
 
@@ -205,5 +205,33 @@ public class ControladorGenerala {
             }
         }
         return resultado;
+    }
+
+    // ! chequear creo que es al pedo
+    public void depositar(String deposito) {
+        Jugador player = partida.getJugadorActual();
+        try {
+            int monto = Integer.parseInt(deposito);
+            if (monto > 0){
+                player.agregarSaldo(monto);
+                vista.mostrarMensaje("Se depositaron $" + monto + " al jugador " + player.getNombre());
+            }else{
+                vista.mostrarMensaje("El monto debe ser mayor a 0. ");
+            }
+        }catch(NumberFormatException e){
+            vista.mostrarMensaje("Entrada invalida, ingrese un numero valido.");
+        }
+    }
+
+    public int pozoActual() {
+        return partida.getBote();
+    }
+
+    public int apuestaMaxima() {
+        return partida.getApuestaMaxima();
+    }
+
+    public int apuestaActual() {
+        return partida.getJugadorActual().getApuesta().getCantidad();
     }
 }

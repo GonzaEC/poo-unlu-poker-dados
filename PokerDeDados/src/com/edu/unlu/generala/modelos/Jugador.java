@@ -36,7 +36,9 @@ public class Jugador extends Persona {
     public ManoPoker getMano(){
         return this.manoPoker;
     }
-
+    public void setManoPoker(Vaso vasoNuevo){
+        this.manoPoker = new ManoPoker(vasoNuevo);
+    }
     public void setApostado(Apuesta apostado) {
         this.apostado = apostado;
     }
@@ -54,7 +56,13 @@ public class Jugador extends Persona {
             return false;
         }
     }
-
+    public void apostar(int monto){
+        this.apostado = new Apuesta(this, monto);
+        this.haApostado = true;
+    }
+    public Apuesta getApuesta(){
+        return this.apostado;
+    }
     public boolean haApostado() {
         return haApostado;
     }
