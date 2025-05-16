@@ -66,33 +66,16 @@ public class ControladorGenerala {
     }
 
     public Jugador determinarGanador(){
-        Jugador ganador = null;
-        int mejorPuntaje = -1;
-        int [] mejoresDados = null;
-
-        for (Jugador player : getJugadores()){
-            int[] valoresDados = player.getVasoJugador().getValores();
-            int puntajeActual = player.getMano().verificarMano(valoresDados);
-
-            if (puntajeActual > mejorPuntaje){
-                mejorPuntaje = puntajeActual;
-                ganador = player;
-                mejoresDados= valoresDados;
-                
-            } else if (puntajeActual == mejorPuntaje) {
-                int desempate = player.getMano().desempatar(valoresDados, mejoresDados);
-                if(desempate> 0){
-                    ganador = player;
-                    mejoresDados = valoresDados;
-                }
-            }
-
-        }
-        return ganador;
+        return partida.determinarGanador();
     }
 
 
     public boolean realizarApuesta(Jugador jugador, int monto){
+        if (partida.getRondaActual() != EventoPartida.RONDA_APUESTAS) {
+            vista.mostrarMensaje("No se puede apostar en esta ronda.");
+            return false;
+        }
+
         if (jugador.getSaldo() >= monto) {
             partida.agregarApuesta(jugador, monto);
             jugador.setHaApostado(true); // Ma
@@ -102,63 +85,6 @@ public class ControladorGenerala {
     }
     public Jugador getJugadorActual(){
         return partida.getJugadorActual();
-    }
-
-    public void realizarApuestas(Jugador player, int monto){
-        if(partida.agregarApuesta(player, monto)){
-            //notificar
-        }
-    }
-
-    public void tirarDados(){
-        if (partida.getTiradasRestantes() > 0){
-            partida.tirarDados();
-            partida.usarTirada();
-        }else {
-            vista.mostrarMensaje("No quedan mas tiradas. ");
-        }
-    }
-    public void tirarDados() {
-        Jugador jugador = partida.getJugadorActual();
-
-        if (partida.getTiradasRestantes() <= 0) {
-            vista.mostrarMensaje("No quedan más tiradas.");
-            return;
-        }
-
-
-
-        if (partida.getTiradasRestantes() == 2) {
-            // Primera tirada: tirar los 5 dados
-            jugador.getVasoJugador().lanzarDados();
-            List<Dado> tirada = jugador.getVasoJugador().obtenerDados();
-            jugador.setManoPoker(jugador.getVasoJugador());
-            vista.mostrarTirada(tirada);
-            partida.usarTirada();
-        } else if (partida.getTiradasRestantes() == 1) {
-            // Segunda tirada: tirar solo los dados no guardados
-            List<Dado> guardados = jugador.getDadosGuardados();
-            int dadosRestantes = 5 - guardados.size();
-
-            if (dadosRestantes > 0) {
-                vaso.lanzar(dadosRestantes);
-                List<Dado> nuevos = vaso.obtenerDados();
-
-                List<Dado> finalMano = new ArrayList<>(guardados);
-                finalMano.addAll(nuevos);
-                jugador.setManoActual(new ManoPoker(finalMano));
-                vista.mostrarTirada(nuevos);
-                vista.mostrarMensaje("Tirada final completada.");
-            } else {
-                vista.mostrarMensaje("No seleccionaste dados para volver a tirar.");
-            }
-
-            partida.usarTirada();
-        }
-    }
-    public void tirarDadosSeleccion(ArrayList<Integer> indice){
-        partida.tirarDadosSeleccion(indice);
-        //notificar
     }
 
     public void cambiarTurno(){
@@ -174,12 +100,6 @@ public class ControladorGenerala {
         //notificar
     }
 
-    public String jugadorActual(){
-        String nombre = null;
-        Jugador jugadorActual = partida.getJugadorActual();
-        nombre = jugadorActual.getNombre();
-        return nombre;
-    }
 
     public int getTiradasRestantes(){
         return partida.getTiradasRestantes();
@@ -197,28 +117,6 @@ public class ControladorGenerala {
         return perdedores;
     }
 
-    public String getGanador(){
-        String nombre = null;
-        Jugador ganador = partida.determinarGanador();
-        nombre = ganador.getNombre();
-        return nombre;
-    }
-
-    public void reiniciarPartida() throws RemoteException {
-        for (Jugador jugador : getJugadores()) {
-            jugador.getVasoJugador().lanzarDados();
-        }
-
-        partida.getApuestas().clear();
-
-        partida.setBote(0);
-        partida.setTurno(0);
-    }
-
-    public void avanzarTurno() {
-        partida.avanzarTurno();
-    }
-
     public boolean todosHanApostado() {
         for (Jugador jugador : getJugadores()) {
             if (!jugador.haApostado()) { // Verificar si el jugador ha apostado
@@ -230,11 +128,12 @@ public class ControladorGenerala {
 
     public boolean existeJugador(String nombreJugador) {
         boolean resultado = false;
-        ArrayList<Jugador> jugadores = new ArrayList<>();
+        List<Jugador> jugadores = new ArrayList<>();
         jugadores = partida.getJugadores();
         for (Jugador gamer : jugadores){
-            if(gamer.getNombre().equals(nombreJugador)){
-                resultado= true;
+            if (gamer.getNombre().equals(nombreJugador)) {
+                resultado = true;
+                break;
             }
         }
         return resultado;
@@ -336,16 +235,11 @@ public class ControladorGenerala {
         }
     }
     private boolean todosLosJugadoresPlantados() {
-        for (Jugador j : partida.getJugadores()) {
-            if (!j.isPlantado()) {
-                return false;
-            }
-        }
-        return true;
+        return partida.todosPlantados();
     }
 
     public void plantarse() {
-        if (partida.getRondaActual() != Ronda.TIRADAS) {
+        if (partida.getRondaActual() != EventoPartida.RONDA_TIRADAS) {
             vista.mostrarMensaje("No puedes plantarte en esta ronda.");
             return;
         }
@@ -355,16 +249,16 @@ public class ControladorGenerala {
         vista.mostrarMensaje(jugador.getNombre() + " se ha plantado.");
 
         if (partida.todosPlantados()) {
-            partida.setRondaActual(Ronda.APOSTANDO);
+            partida.setRondaActual(EventoPartida.RONDA_APUESTAS);
             partida.reiniciarTurnoParaApuestas(); // si necesitás resetear el turno
             vista.mostrarMensaje("Todos se han plantado. Comienza la ronda de apuestas.");
         } else {
-            partida.siguienteJugador();
+            partida.avanzarTurno();
             vista.mostrarMensaje("Turno de " + partida.getJugadorActual().getNombre());
         }
     }
     public void iniciarRondaApuestas() {
-        partida.setRondaActual(Ronda.APOSTANDO); // si usás enums o un flag para saber la etapa
+        partida.setRondaActual(EventoPartida.RONDA_APUESTAS); // si usás enums o un flag para saber la etapa
         vista.mostrarMenuApuestas(); // cambia el menú de la vista a modo apuestas
     }
 }

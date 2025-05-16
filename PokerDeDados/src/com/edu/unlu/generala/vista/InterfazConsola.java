@@ -78,8 +78,8 @@ public class InterfazConsola extends JFrame implements IVista {
                             .collect(Collectors.toList());
 
                     controlador.tirarDadosSeleccionados(indices);
-                    estadoActual = EstadoVistaConsola.MENU_JUGADOR_APUESTAS;
-                    mostrarMenuJugadorApuestas();
+                    estadoActual = EstadoVistaConsola.MENU_JUGADOR_DADOS;
+                    mostrarMenuJugadorDados();
                 } catch (NumberFormatException e) {
                     println("Entrada inválida. Ingresá índices válidos del 0 al 4 separados por espacios:");
                 }

@@ -13,7 +13,9 @@ public interface IPartida{
 
     void avanzarTurno() throws RemoteException;
 
-    int getTurno() throws RemoteException;
+    int getIndiceJugadorActual() throws RemoteException;
+
+    int getTurno();
 
     int getBote() throws RemoteException;
 
@@ -40,7 +42,7 @@ public interface IPartida{
 
     void setBote(int i);
 
-    void setTurno(int i);
+    void setIndiceJugadorActual(int i);
 
     int getTiradasRestantes();
 

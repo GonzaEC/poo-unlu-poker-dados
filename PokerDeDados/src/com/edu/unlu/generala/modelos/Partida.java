@@ -1,17 +1,16 @@
 package com.edu.unlu.generala.modelos;
 
 import ar.edu.unlu.rmimvc.observer.ObservableRemoto;
-import com.edu.unlu.generala.vista.EstadoVistaConsola;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Partida extends ObservableRemoto implements IPartida {
-    private ArrayList<Jugador> jugadores;
-    private ArrayList<Apuesta> apuestas;
+    private final List<Jugador> jugadores;
+    private final List<Apuesta> apuestas;
     private Vaso vaso;
-    private int turno;
+    private int indiceJugadorActual;
     private int bote;
     private Jugador jugadorActual;
     private int tiradasRestantes;
@@ -25,15 +24,16 @@ public class Partida extends ObservableRemoto implements IPartida {
         this.jugadores = new ArrayList<>();
         this.apuestas = new ArrayList<>();
         this.vaso = new Vaso();
-        this.turno = 0;
+        this.indiceJugadorActual = 0;
         this.bote = 0;
         jugadorActual = null;
         this.tiradasRestantes = MAX_TIRADAS;
         this.rondaActual = EventoPartida.RONDA_TIRADAS;
+        this.apuestaMaxima = 0;
     }
 
-    public void setTurno(int turno) {
-        this.turno = turno;
+    public void setIndiceJugadorActual(int indiceJugadorActual) {
+        this.indiceJugadorActual = indiceJugadorActual;
     }
 
     public void setBote(int bote) {
@@ -44,12 +44,12 @@ public class Partida extends ObservableRemoto implements IPartida {
     }
     //gets
     @Override
-    public ArrayList<Jugador> getJugadores() {
+    public List<Jugador> getJugadores() {
         return jugadores;
     }
 
     @Override
-    public ArrayList<Apuesta> getApuestas() {
+    public List<Apuesta> getApuestas() {
         return apuestas;
     }
 
@@ -60,7 +60,7 @@ public class Partida extends ObservableRemoto implements IPartida {
 
     @Override
     public int getTurno() {
-        return turno;
+        return indiceJugadorActual;
     }
 
     @Override
@@ -70,8 +70,9 @@ public class Partida extends ObservableRemoto implements IPartida {
 
     @Override
     public Jugador getJugadorActual() {
-        return jugadorActual;
+        return jugadores.get(indiceJugadorActual);
     }
+
 
     //metodos clase
     @Override
@@ -86,7 +87,7 @@ public class Partida extends ObservableRemoto implements IPartida {
 
     @Override
     public void agregarJugador(String nombre) throws RemoteException {
-        this.jugadores.add(new Jugador(nombre, 100));
+        jugadores.add(new Jugador(nombre, 100));
 
     }
 
@@ -114,6 +115,9 @@ public class Partida extends ObservableRemoto implements IPartida {
             jugador.apostar(cantidad);
             apuestas.add(jugador.getApuesta());
             bote += cantidad;
+            if (cantidad > apuestaMaxima) {
+                apuestaMaxima = cantidad;
+            }
             return true;
         }
         return false;
@@ -133,30 +137,31 @@ public class Partida extends ObservableRemoto implements IPartida {
     public Jugador determinarGanador() {
         Jugador ganador = null;
         int mejorPuntaje = -1;
-        int[] mejorMano = null;
+        int[] mejoresDados = null;
 
-        for (Jugador jugador : this.jugadores) {
-            int[] valoresDados = jugador.getVasoJugador().getValores();
-            int puntajeActual = jugador.getMano().verificarMano(valoresDados);
+        for (Jugador player : jugadores) {
+            int[] valoresDados = player.getVasoJugador().getValores();
+            int puntajeActual = player.getMano().verificarMano(valoresDados);
 
             if (puntajeActual > mejorPuntaje) {
                 mejorPuntaje = puntajeActual;
-                ganador = jugador;
-                mejorMano = valoresDados;
+                ganador = player;
+                mejoresDados = valoresDados;
+
             } else if (puntajeActual == mejorPuntaje) {
-                // Desempate
-                if (jugador.getMano().desempatar(valoresDados, mejorMano) > 0) {
-                    ganador = jugador;
-                    mejorMano = valoresDados;
+                int desempate = player.getMano().desempatar(valoresDados, mejoresDados);
+                if (desempate > 0) {
+                    ganador = player;
+                    mejoresDados = valoresDados;
                 }
             }
         }
+
         return ganador;
     }
 
     public void avanzarTurno() {
-        turno = (turno + 1) % jugadores.size();
-        jugadorActual = jugadores.get(turno);
+        indiceJugadorActual = (indiceJugadorActual + 1) % jugadores.size();
     }
 
     public int getApuestaMaxima() {
@@ -182,10 +187,12 @@ public class Partida extends ObservableRemoto implements IPartida {
             }
         }
         return true;
+
     }
     public void avanzarRondaSiEsNecesario() {
         if (rondaActual == EventoPartida.RONDA_TIRADAS && todosPlantados()) {
             rondaActual = EventoPartida.RONDA_APUESTAS;
+            reiniciarTiradas(); // opcional si querés resetear
         }
     }
     //finalizar partida
