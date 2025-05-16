@@ -11,6 +11,7 @@ public class Jugador extends Persona {
     private boolean haApostado = false;
     private boolean plantado = false;
     List<Dado> dadosGuardados;
+    private boolean sePlantoApuesta = false;
 
     public Jugador(String nombre, int saldoInicial) {
         this.nombre = nombre;
@@ -111,4 +112,12 @@ public class Jugador extends Persona {
             throw new IllegalArgumentException("Saldo insuficiente para aumentar apuesta");
         }
     }
+    public boolean isPlantoApuesta() {
+        return sePlantoApuesta;
+    }
+
+    public void setPlantoApuesta(boolean b) {
+        this.sePlantoApuesta = b;
+    }
+
 }

@@ -202,5 +202,38 @@ public class Partida extends ObservableRemoto implements IPartida {
             j.setHaApostado(false);
         }
     }
+
+    public void agregarAlPozo(int diferencia) {
+        this.bote = bote+=diferencia;
+    }
+
+    public boolean siguienteApostador() {
+        int totalJugadores = jugadores.size();
+        int intentos = 0;
+
+        do {
+            indiceJugadorActual = (indiceJugadorActual + 1) % totalJugadores;
+            intentos++;
+        } while ((jugadores.get(indiceJugadorActual).isPlantoApuesta() ||
+                jugadores.get(indiceJugadorActual).getApostado() == apuestaMaxima)
+                && intentos <= totalJugadores);
+
+        // Verificamos si todos se plantaron o igualaron
+        boolean rondaFinalizada = jugadores.stream().allMatch(j ->
+                j.isPlantoApuesta() || j.getApostado() == apuestaMaxima
+        );
+
+        if (rondaFinalizada) {
+            avanzarTurno(); // Cambia el estado de la partida si es necesario
+        }
+
+        return rondaFinalizada; // Le dice al controlador si la ronda de apuestas terminó
+    }
+
+    public void distribuirGanancias(Jugador ganador) {
+        ganador.agregarSaldo(bote);
+        this.bote= 0;
+    }
+}
     //finalizar partida
 }

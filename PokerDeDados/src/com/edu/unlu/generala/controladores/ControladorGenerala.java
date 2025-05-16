@@ -278,8 +278,29 @@ public class ControladorGenerala {
         int diferencia = partida.getApuestaMaxima() - partida.getJugadorActual().getApostado();
         partida.getJugadorActual().aumentarApuesta(diferencia);
         partida.agregarAlPozo(diferencia);
-        partida.avanzarTurno();
-        siguienteApostador();
+
+        evaluarFinDeRondaApuestas();
 
     }
+
+    public void plantarseApuesta() {
+        partida.getJugadorActual().setPlantoApuesta(true);
+
+        evaluarFinDeRondaApuestas();
+    }
+
+    private void evaluarFinDeRondaApuestas() {
+        boolean terminoRonda = partida.siguienteApostador();
+
+        if (terminoRonda) {
+            Jugador ganador = determinarGanador();
+            partida.distribuirGanancias(ganador);
+            vista.mostrarGanador();
+            partida.avanzarTurno();
+            vista.mostrarMenuJugadorDados();
+        } else {
+            vista.mostrarMenuApuestas();
+        }
+    }
+
 }
