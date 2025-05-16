@@ -11,4 +11,7 @@ public interface IVista {
 
     void mostrarResultadoDados(int[] ints);
 
+    void mostrarMenuJugadorDados();
+
+    void mostrarMenuApuestas();
 }

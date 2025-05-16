@@ -19,12 +19,16 @@ public class ControladorGenerala {
     }
 
     public void iniciar() throws RemoteException {
-        if(partida.getJugadores().size() < 2){
-            //notificar observador
+        if (partida.getJugadores().size() < 2) {
+            vista.mostrarMensaje("Debe haber al menos 2 jugadores para comenzar la partida.");
             return;
         }
-        //notificar inicio
-        partida.avanzarTurno();
+
+        vista.mostrarMensaje("¡Comienza la partida!");
+        partida.setRondaActual(EventoPartida.RONDA_TIRADAS);
+        partida.reiniciarTiradas(); // Asegurarse de que todos tienen 2 tiradas
+        Jugador jugadorActual = partida.getJugadorActual();
+        vista.mostrarMensaje("Turno de " + jugadorActual.getNombre());
 
     }
 
@@ -249,16 +253,24 @@ public class ControladorGenerala {
         vista.mostrarMensaje(jugador.getNombre() + " se ha plantado.");
 
         if (partida.todosPlantados()) {
-            partida.setRondaActual(EventoPartida.RONDA_APUESTAS);
-            partida.reiniciarTurnoParaApuestas(); // si necesitás resetear el turno
-            vista.mostrarMensaje("Todos se han plantado. Comienza la ronda de apuestas.");
+            iniciarRondaApuestas();
         } else {
             partida.avanzarTurno();
             vista.mostrarMensaje("Turno de " + partida.getJugadorActual().getNombre());
         }
     }
     public void iniciarRondaApuestas() {
-        partida.setRondaActual(EventoPartida.RONDA_APUESTAS); // si usás enums o un flag para saber la etapa
+        partida.setRondaActual(EventoPartida.RONDA_APUESTAS);// si usás enums o un flag para saber la etapa
+        partida.reiniciarTurnoParaApuestas();
+        vista.mostrarMensaje("¡Todos se han plantado! Comienza la ronda de apuestas.");
         vista.mostrarMenuApuestas(); // cambia el menú de la vista a modo apuestas
+    }
+
+    public int getPozo() {
+        return partida.getBote();
+    }
+
+    public int getApuestaMaxima() {
+        return partida.getApuestaMaxima();
     }
 }

@@ -54,7 +54,7 @@ public class InterfazConsola extends JFrame implements IVista {
         }
         txtEntrada.setText("");
     }
-    private void procesarEntrada(String entrada){
+    private void procesarEntrada(String entrada) throws RemoteException {
         switch (estadoActual){
             case MENU_PRINCIPAL:
                 limpiarPantalla();
@@ -84,8 +84,17 @@ public class InterfazConsola extends JFrame implements IVista {
                     println("Entrada inválida. Ingresá índices válidos del 0 al 4 separados por espacios:");
                 }
                 break;
+            case MENU_JUGADOR_APUESTAS:
+                procesarEntradaMenuApuestas(entrada);
+                break;
+            case SUBIR_APUESTA:
+                
+                break;
         }
     }
+
+
+
     // ! creo que no sirve
     private void depositarSaldo(String entrada) {
         controlador.depositar(entrada);
@@ -113,7 +122,7 @@ public class InterfazConsola extends JFrame implements IVista {
 
     }
 
-    private void procesarEntradaMenuPrincipal(String entrada) {
+    private void procesarEntradaMenuPrincipal(String entrada) throws RemoteException {
         switch (entrada) {
             case "1":
                 //agregar jugador
@@ -163,7 +172,25 @@ public class InterfazConsola extends JFrame implements IVista {
                 break;
         }
     }
-    private void mostrarMenuJugadorDados() {
+    private void procesarEntradaMenuApuestas(String entrada) {
+        switch (entrada){
+            case "1":
+                controlador.igualarApuesta();
+                break;
+            case "2":
+                println("Cuanto queres apostar? ");
+                estadoActual = EstadoVistaConsola.SUBIR_APUESTA;
+                break;
+            case "3":
+                controlador.plantarseApuesta();
+                break;
+            default:
+                println("Opción inválida, intente de nuevo.");
+                mostrarMenuApuestas();
+                break;
+        }
+    }
+    public void mostrarMenuJugadorDados() {
         estadoActual = EstadoVistaConsola.MENU_JUGADOR_DADOS;
         println("\n-- TURNO DE: " + controlador.getJugadorActual().getNombre() + " --");
         println("Tiradas restantes: " + controlador.getTiradasRestantes());
@@ -177,6 +204,22 @@ public class InterfazConsola extends JFrame implements IVista {
         }
         println("3. Plantarse (no tirar más)");
         println("Seleccione una opción:");
+    }
+    public void mostrarMenuApuestas() {
+        estadoActual = EstadoVistaConsola.MENU_JUGADOR_APUESTAS;
+        Jugador jugador = controlador.getJugadorActual();
+
+        println("\n-- RONDA DE APUESTAS --");
+        println("Turno de: " + jugador.getNombre());
+        println("Pozo actual: $" + controlador.getPozo());
+        println("Tu apuesta actual: $" + jugador.getApostado());
+        println("Apuesta máxima actual: $" + controlador.getApuestaMaxima());
+
+        println("¿Qué deseás hacer?");
+        println("1. Igualar (Call)");
+        println("2. Subir (Raise)");
+        println("3. Plantarse (Fold)");
+        print("Elegí una opción: ");
     }
     private void mostrarMenuPrincipal() {
         println("\n-- MENU PRINCIPAL --");

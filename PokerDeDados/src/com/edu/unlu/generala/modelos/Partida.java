@@ -195,5 +195,12 @@ public class Partida extends ObservableRemoto implements IPartida {
             reiniciarTiradas(); // opcional si querés resetear
         }
     }
+
+    public void reiniciarTurnoParaApuestas() {
+        this.indiceJugadorActual = 0;
+        for (Jugador j : jugadores) {
+            j.setHaApostado(false);
+        }
+    }
     //finalizar partida
 }
