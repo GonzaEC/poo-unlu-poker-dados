@@ -1,6 +1,7 @@
 package com.edu.unlu.generala.vista;
 
 import com.edu.unlu.generala.controladores.ControladorGenerala;
+import com.edu.unlu.generala.modelos.Dado;
 import com.edu.unlu.generala.modelos.Jugador;
 
 import javax.swing.*;
@@ -88,7 +89,8 @@ public class InterfazConsola extends JFrame implements IVista {
                 procesarEntradaMenuApuestas(entrada);
                 break;
             case SUBIR_APUESTA:
-                
+               controlador.subirApuesta(entrada);
+
                 break;
         }
     }
@@ -214,7 +216,7 @@ public class InterfazConsola extends JFrame implements IVista {
         println("Pozo actual: $" + controlador.getPozo());
         println("Tu apuesta actual: $" + jugador.getApostado());
         println("Apuesta máxima actual: $" + controlador.getApuestaMaxima());
-
+        println("");
         println("¿Qué deseás hacer?");
         println("1. Igualar (Call)");
         println("2. Subir (Raise)");
@@ -238,6 +240,21 @@ public class InterfazConsola extends JFrame implements IVista {
         print(string + "\n");
     }
 
+    @Override
+    public void mostrarTirada(List<Dado> dadosTirados){
+        println("Dados: ");
+        for (int i = 0; i < dadosTirados.size(); i++) {
+            Dado dado = dadosTirados.get(i);
+            println("[" + (i+1) + ": " + dado.getCara() + "] ");
+        }
+        println(""); // Salto de línea al final
+    }
+
+    @Override
+    public void mostrarGanador(){
+        println("El ganador es: " + controlador.determinarGanador().getNombre());
+        println("Ha ganado: $" + controlador.getPozo());
+    }
     @Override
     public void setControlador(ControladorGenerala controlador) {
         this.controlador = controlador;

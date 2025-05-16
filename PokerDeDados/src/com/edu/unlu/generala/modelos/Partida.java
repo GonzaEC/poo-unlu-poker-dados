@@ -6,7 +6,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Partida extends ObservableRemoto implements IPartida {
+public class Partida implements IPartida {
     private final List<Jugador> jugadores;
     private final List<Apuesta> apuestas;
     private Vaso vaso;
@@ -18,6 +18,8 @@ public class Partida extends ObservableRemoto implements IPartida {
 
     private EventoPartida rondaActual;
     private int apuestaMaxima;
+
+    private int jugadorQueEmpieza = 0;
 
 
     public Partida() {
@@ -148,7 +150,7 @@ public class Partida extends ObservableRemoto implements IPartida {
                 ganador = player;
                 mejoresDados = valoresDados;
 
-            } else if (puntajeActual == mejorPuntaje) {
+            } else if (puntajeActual == mejorPuntaje && mejoresDados != null) { // <-- chequeo agregado
                 int desempate = player.getMano().desempatar(valoresDados, mejoresDados);
                 if (desempate > 0) {
                     ganador = player;
@@ -162,6 +164,11 @@ public class Partida extends ObservableRemoto implements IPartida {
 
     public void avanzarTurno() {
         indiceJugadorActual = (indiceJugadorActual + 1) % jugadores.size();
+    }
+
+    @Override
+    public int getIndiceJugadorActual() throws RemoteException {
+        return 0;
     }
 
     public int getApuestaMaxima() {
@@ -232,8 +239,32 @@ public class Partida extends ObservableRemoto implements IPartida {
 
     public void distribuirGanancias(Jugador ganador) {
         ganador.agregarSaldo(bote);
-        this.bote= 0;
     }
+
+    public void prepararSiguienteRonda() {
+        jugadorQueEmpieza = (jugadorQueEmpieza + 1) % jugadores.size();  // Siguiente jugador
+        indiceJugadorActual = jugadorQueEmpieza; // Se actualiza para comenzar desde ahí
+
+        // Reiniciar estado de cada jugador
+        for (Jugador j : jugadores) {
+            j.setPlantoApuesta(false);
+            j.setApostado(new Apuesta(j, 100));
+            j.setPlantoApuesta(false);
+            // si tenés alguna lógica para reiniciar mano de dados o algo más, agregalo acá
+        }
+
+        apuestaMaxima = 0;
+        apuestas.clear();
+        bote = 0;
+
+        rondaActual = EventoPartida.RONDA_TIRADAS;
+    }
+
+    public void setApuestaMaxima(int n){
+        this.apuestaMaxima = n;
+    }
+
 }
+
     //finalizar partida
-}
+

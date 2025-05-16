@@ -11,9 +11,10 @@ public class ControladorGenerala {
     private Partida partida;
     IVista vista;
 
-    public ControladorGenerala(){
+    public ControladorGenerala() {
         this.partida = new Partida();
     }
+
     public void setVista(IVista vista) {
         this.vista = vista;
     }
@@ -32,22 +33,22 @@ public class ControladorGenerala {
 
     }
 
-    public void agregarJugador(String jugador){
+    public void agregarJugador(String jugador) {
         try {
             partida.agregarJugador(jugador);
-        }catch (RemoteException e){
+        } catch (RemoteException e) {
             //vista
             e.printStackTrace();
         }
     }
 
 
-    public String evaluarJugada(){
+    public String evaluarJugada() {
         Jugador jugadorActual = getJugadorActual();
-        int[] valoresDados= jugadorActual.getVasoJugador().getValores();
+        int[] valoresDados = jugadorActual.getVasoJugador().getValores();
         int resultado = jugadorActual.getMano().verificarMano(valoresDados);
 
-        switch (resultado){
+        switch (resultado) {
             case 7:
                 return "Poker real";
             case 6:
@@ -65,16 +66,16 @@ public class ControladorGenerala {
             case 0:
                 return "Pares";
             default:
-                    return "Sin valor";
+                return "Sin valor";
         }
     }
 
-    public Jugador determinarGanador(){
+    public Jugador determinarGanador() {
         return partida.determinarGanador();
     }
 
 
-    public boolean realizarApuesta(Jugador jugador, int monto){
+    public boolean realizarApuesta(Jugador jugador, int monto) {
         if (partida.getRondaActual() != EventoPartida.RONDA_APUESTAS) {
             vista.mostrarMensaje("No se puede apostar en esta ronda.");
             return false;
@@ -85,27 +86,33 @@ public class ControladorGenerala {
             jugador.setHaApostado(true); // Ma
             return true;
         }
+        if (jugador.getSaldo() < monto) {
+            vista.mostrarMensaje("Saldo insuficiente para apostar $" + monto);
+            return false;
+        }
         return false;
     }
-    public Jugador getJugadorActual(){
+
+    public Jugador getJugadorActual() {
         return partida.getJugadorActual();
     }
 
-    public void cambiarTurno(){
+    public void cambiarTurno() {
         partida.reiniciarTiradas();
         partida.avanzarTurno();
     }
-    public List<Jugador> getJugadores(){
+
+    public List<Jugador> getJugadores() {
         return partida.getJugadores();
     }
 
-    public void finalizarPartida(){
+    public void finalizarPartida() {
         Jugador ganador = partida.determinarGanador();
         //notificar
     }
 
 
-    public int getTiradasRestantes(){
+    public int getTiradasRestantes() {
         return partida.getTiradasRestantes();
     }
 
@@ -134,7 +141,7 @@ public class ControladorGenerala {
         boolean resultado = false;
         List<Jugador> jugadores = new ArrayList<>();
         jugadores = partida.getJugadores();
-        for (Jugador gamer : jugadores){
+        for (Jugador gamer : jugadores) {
             if (gamer.getNombre().equals(nombreJugador)) {
                 resultado = true;
                 break;
@@ -148,13 +155,13 @@ public class ControladorGenerala {
         Jugador player = partida.getJugadorActual();
         try {
             int monto = Integer.parseInt(deposito);
-            if (monto > 0){
+            if (monto > 0) {
                 player.agregarSaldo(monto);
                 vista.mostrarMensaje("Se depositaron $" + monto + " al jugador " + player.getNombre());
-            }else{
+            } else {
                 vista.mostrarMensaje("El monto debe ser mayor a 0. ");
             }
-        }catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             vista.mostrarMensaje("Entrada invalida, ingrese un numero valido.");
         }
     }
@@ -190,7 +197,7 @@ public class ControladorGenerala {
         if (partida.getTiradasRestantes() == 2) {
             // Tirar todos los dados del vaso del jugador
             jugador.getVasoJugador().lanzarDados();
-            vista.mostrarTirada(jugador.getVasoJugador().obtenerDados());
+            vista.mostrarTirada(jugador.getVasoJugador().getDados());
 
             // Actualizar mano poker con el vaso actual (que tiene los dados tirados)
             jugador.setManoPoker(jugador.getVasoJugador());
@@ -238,6 +245,7 @@ public class ControladorGenerala {
             vista.mostrarMensaje("No puedes tirar dados seleccionados en esta tirada.");
         }
     }
+
     private boolean todosLosJugadoresPlantados() {
         return partida.todosPlantados();
     }
@@ -251,14 +259,16 @@ public class ControladorGenerala {
         Jugador jugador = partida.getJugadorActual();
         jugador.setPlantado(true);
         vista.mostrarMensaje(jugador.getNombre() + " se ha plantado.");
-
+        partida.reiniciarTiradas();
         if (partida.todosPlantados()) {
             iniciarRondaApuestas();
         } else {
             partida.avanzarTurno();
             vista.mostrarMensaje("Turno de " + partida.getJugadorActual().getNombre());
+            vista.mostrarMenuJugadorDados();
         }
     }
+
     public void iniciarRondaApuestas() {
         partida.setRondaActual(EventoPartida.RONDA_APUESTAS);// si usás enums o un flag para saber la etapa
         partida.reiniciarTurnoParaApuestas();
@@ -296,11 +306,51 @@ public class ControladorGenerala {
             Jugador ganador = determinarGanador();
             partida.distribuirGanancias(ganador);
             vista.mostrarGanador();
-            partida.avanzarTurno();
+            partida.prepararSiguienteRonda();
             vista.mostrarMenuJugadorDados();
         } else {
             vista.mostrarMenuApuestas();
         }
     }
 
+    public void subirApuesta(String entrada) {
+        Jugador jugador = getJugadorActual();
+
+        try {
+            int nuevoMonto = Integer.parseInt(entrada);
+            int yaApostado = jugador.getApostado();
+
+            if (nuevoMonto <= 0) {
+                vista.mostrarMensaje("La apuesta debe ser mayor a 0.");
+                vista.mostrarMenuApuestas();
+                return;
+            }
+
+            if (nuevoMonto <= yaApostado) {
+                vista.mostrarMensaje("Tenés que subir la apuesta, no bajarla o repetirla.");
+                vista.mostrarMenuApuestas();
+                return;
+            }
+
+            int diferencia = nuevoMonto - yaApostado;
+
+            if (jugador.getSaldo() < diferencia) {
+                vista.mostrarMensaje("No tenés suficiente saldo para subir esa cantidad.");
+                vista.mostrarMenuApuestas();
+                return;
+            }
+
+            jugador.retirarSaldo(diferencia);
+            jugador.apostar(diferencia); // Se suma al apostado
+            partida.setApuestaMaxima(jugador.getApostado());
+            partida.agregarAlPozo(diferencia);
+            jugador.setPlantoApuesta(false); // Sigue participando
+
+            evaluarFinDeRondaApuestas();
+
+        } catch (NumberFormatException e) {
+            vista.mostrarMensaje("Entrada inválida. Debe ser un número.");
+            vista.mostrarMenuApuestas();
+        }
+    }
 }

@@ -16,6 +16,8 @@ public class Jugador extends Persona {
     public Jugador(String nombre, int saldoInicial) {
         this.nombre = nombre;
         //if (saldoInicial > 0) {}
+
+        this.vasoJugador =new Vaso();
         this.saldo = saldoInicial;
     }
 
@@ -28,7 +30,7 @@ public class Jugador extends Persona {
     }
 
     public int getApostado() {
-        return apostado.getCantidad();
+        return apostado != null ? apostado.getCantidad() : 0;
     }
 
     public Vaso getVasoJugador(){return this.vasoJugador;}
