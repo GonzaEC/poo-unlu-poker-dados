@@ -89,4 +89,26 @@ public class Jugador extends Persona {
     public void setPlantado(boolean b) {
         this.plantado = b;
     }
+
+    public void aumentarApuesta(int cantidad) {
+        // Verificás que tenga saldo suficiente
+        if (saldo >= cantidad) {
+            // Le restás al saldo la cantidad apostada
+            saldo -= cantidad;
+
+            // Sumás la cantidad a la apuesta actual
+            if (apostado == null) {
+                apostado = new Apuesta(this, cantidad);
+            } else {
+                // Sumás a la apuesta ya existente
+                apostado.setApuesta(apostado.getCantidad() + cantidad);
+            }
+
+            // Indicás que ha apostado algo
+            haApostado = true;
+        } else {
+            // Si no tiene saldo suficiente, podés manejar un error o excepción
+            throw new IllegalArgumentException("Saldo insuficiente para aumentar apuesta");
+        }
+    }
 }

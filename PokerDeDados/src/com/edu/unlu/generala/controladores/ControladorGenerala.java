@@ -273,4 +273,13 @@ public class ControladorGenerala {
     public int getApuestaMaxima() {
         return partida.getApuestaMaxima();
     }
+
+    public void igualarApuesta() {
+        int diferencia = partida.getApuestaMaxima() - partida.getJugadorActual().getApostado();
+        partida.getJugadorActual().aumentarApuesta(diferencia);
+        partida.agregarAlPozo(diferencia);
+        partida.avanzarTurno();
+        siguienteApostador();
+
+    }
 }
