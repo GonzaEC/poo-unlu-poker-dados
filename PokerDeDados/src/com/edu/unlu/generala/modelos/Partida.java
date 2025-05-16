@@ -1,6 +1,7 @@
 package com.edu.unlu.generala.modelos;
 
 import ar.edu.unlu.rmimvc.observer.ObservableRemoto;
+import com.edu.unlu.generala.vista.EstadoVistaConsola;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class Partida extends ObservableRemoto implements IPartida {
     private int tiradasRestantes;
     private static final int MAX_TIRADAS = 2;
 
+    private EventoPartida rondaActual;
     private int apuestaMaxima;
 
 
@@ -27,6 +29,7 @@ public class Partida extends ObservableRemoto implements IPartida {
         this.bote = 0;
         jugadorActual = null;
         this.tiradasRestantes = MAX_TIRADAS;
+        this.rondaActual = EventoPartida.RONDA_TIRADAS;
     }
 
     public void setTurno(int turno) {
@@ -133,7 +136,7 @@ public class Partida extends ObservableRemoto implements IPartida {
         int[] mejorMano = null;
 
         for (Jugador jugador : this.jugadores) {
-            int[] valoresDados = jugador.getVasoJugador().obtenerValores();
+            int[] valoresDados = jugador.getVasoJugador().getValores();
             int puntajeActual = jugador.getMano().verificarMano(valoresDados);
 
             if (puntajeActual > mejorPuntaje) {
@@ -159,6 +162,31 @@ public class Partida extends ObservableRemoto implements IPartida {
     public int getApuestaMaxima() {
         return apuestaMaxima;
     }
+    public void reiniciarPlantados() {
+        for (Jugador j : this.getJugadores()) {
+            j.setPlantado(false);
+        }
+    }
+    public EventoPartida getRondaActual() {
+        return rondaActual;
+    }
 
+    public void setRondaActual(EventoPartida rondaActual) {
+        this.rondaActual = rondaActual;
+    }
+
+    public boolean todosPlantados() {
+        for (Jugador j : jugadores) {
+            if (!j.isPlantado()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    public void avanzarRondaSiEsNecesario() {
+        if (rondaActual == EventoPartida.RONDA_TIRADAS && todosPlantados()) {
+            rondaActual = EventoPartida.RONDA_APUESTAS;
+        }
+    }
     //finalizar partida
 }

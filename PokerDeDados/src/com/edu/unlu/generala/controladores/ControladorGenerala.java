@@ -1,10 +1,6 @@
 package com.edu.unlu.generala.controladores;
 
-import ar.edu.unlu.rmimvc.cliente.IControladorRemoto;
-import com.edu.unlu.generala.modelos.Apuesta;
-import com.edu.unlu.generala.modelos.IPartida;
-import com.edu.unlu.generala.modelos.Jugador;
-import com.edu.unlu.generala.modelos.Partida;
+import com.edu.unlu.generala.modelos.*;
 import com.edu.unlu.generala.vista.IVista;
 
 import java.rmi.RemoteException;
@@ -44,7 +40,7 @@ public class ControladorGenerala {
 
     public String evaluarJugada(){
         Jugador jugadorActual = getJugadorActual();
-        int[] valoresDados= jugadorActual.getVasoJugador().obtenerValores();
+        int[] valoresDados= jugadorActual.getVasoJugador().getValores();
         int resultado = jugadorActual.getMano().verificarMano(valoresDados);
 
         switch (resultado){
@@ -75,7 +71,7 @@ public class ControladorGenerala {
         int [] mejoresDados = null;
 
         for (Jugador player : getJugadores()){
-            int[] valoresDados = player.getVasoJugador().obtenerValores();
+            int[] valoresDados = player.getVasoJugador().getValores();
             int puntajeActual = player.getMano().verificarMano(valoresDados);
 
             if (puntajeActual > mejorPuntaje){
@@ -122,7 +118,44 @@ public class ControladorGenerala {
             vista.mostrarMensaje("No quedan mas tiradas. ");
         }
     }
+    public void tirarDados() {
+        Jugador jugador = partida.getJugadorActual();
 
+        if (partida.getTiradasRestantes() <= 0) {
+            vista.mostrarMensaje("No quedan más tiradas.");
+            return;
+        }
+
+
+
+        if (partida.getTiradasRestantes() == 2) {
+            // Primera tirada: tirar los 5 dados
+            jugador.getVasoJugador().lanzarDados();
+            List<Dado> tirada = jugador.getVasoJugador().obtenerDados();
+            jugador.setManoPoker(jugador.getVasoJugador());
+            vista.mostrarTirada(tirada);
+            partida.usarTirada();
+        } else if (partida.getTiradasRestantes() == 1) {
+            // Segunda tirada: tirar solo los dados no guardados
+            List<Dado> guardados = jugador.getDadosGuardados();
+            int dadosRestantes = 5 - guardados.size();
+
+            if (dadosRestantes > 0) {
+                vaso.lanzar(dadosRestantes);
+                List<Dado> nuevos = vaso.obtenerDados();
+
+                List<Dado> finalMano = new ArrayList<>(guardados);
+                finalMano.addAll(nuevos);
+                jugador.setManoActual(new ManoPoker(finalMano));
+                vista.mostrarTirada(nuevos);
+                vista.mostrarMensaje("Tirada final completada.");
+            } else {
+                vista.mostrarMensaje("No seleccionaste dados para volver a tirar.");
+            }
+
+            partida.usarTirada();
+        }
+    }
     public void tirarDadosSeleccion(ArrayList<Integer> indice){
         partida.tirarDadosSeleccion(indice);
         //notificar
@@ -233,5 +266,105 @@ public class ControladorGenerala {
 
     public int apuestaActual() {
         return partida.getJugadorActual().getApuesta().getCantidad();
+    }
+
+    public void tirarTodosDados() {
+
+        if (partida.getRondaActual() != EventoPartida.RONDA_TIRADAS) {
+            vista.mostrarMensaje("No se pueden tirar dados en esta ronda.");
+            return;
+        }
+        Jugador jugador = partida.getJugadorActual();
+        if (jugador.isPlantado()) {
+            vista.mostrarMensaje("Ya te has plantado. No podés tirar más dados.");
+            return;
+        }
+        if (partida.getTiradasRestantes() <= 0) {
+            vista.mostrarMensaje("No quedan más tiradas.");
+            return;
+        }
+
+        if (partida.getTiradasRestantes() == 2) {
+            // Tirar todos los dados del vaso del jugador
+            jugador.getVasoJugador().lanzarDados();
+            vista.mostrarTirada(jugador.getVasoJugador().obtenerDados());
+
+            // Actualizar mano poker con el vaso actual (que tiene los dados tirados)
+            jugador.setManoPoker(jugador.getVasoJugador());
+
+            partida.usarTirada();
+        } else {
+            vista.mostrarMensaje("Ya no puedes tirar todos los dados, usa la opción de dados seleccionados.");
+        }
+    }
+
+    public void tirarDadosSeleccionados(List<Integer> indices) {
+        if (partida.getRondaActual() != EventoPartida.RONDA_TIRADAS) {
+            vista.mostrarMensaje("No se pueden tirar dados en esta ronda.");
+            return;
+        }
+        Jugador jugador = partida.getJugadorActual();
+        if (jugador.isPlantado()) {
+            vista.mostrarMensaje("Ya te has plantado. No podés tirar más dados.");
+            return;
+        }
+        if (partida.getTiradasRestantes() <= 0) {
+            vista.mostrarMensaje("No quedan más tiradas.");
+            return;
+        }
+
+        if (partida.getTiradasRestantes() == 1) {
+            // Tirar sólo los dados en el vaso según los índices recibidos
+            jugador.getVasoJugador().lanzarSeleccionados(indices);
+
+            // Mostrar los dados que fueron lanzados en esta tirada
+            List<Dado> dadosTirados = new ArrayList<>();
+            for (int i : indices) {
+                if (i >= 0 && i < jugador.getVasoJugador().getDados().size()) {
+                    dadosTirados.add(jugador.getVasoJugador().getDados().get(i));
+                }
+            }
+            vista.mostrarTirada(dadosTirados);
+
+            // Actualizar mano poker con el vaso modificado
+            jugador.setManoPoker(jugador.getVasoJugador());
+
+            partida.usarTirada();
+
+        } else {
+            vista.mostrarMensaje("No puedes tirar dados seleccionados en esta tirada.");
+        }
+    }
+    private boolean todosLosJugadoresPlantados() {
+        for (Jugador j : partida.getJugadores()) {
+            if (!j.isPlantado()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void plantarse() {
+        if (partida.getRondaActual() != Ronda.TIRADAS) {
+            vista.mostrarMensaje("No puedes plantarte en esta ronda.");
+            return;
+        }
+
+        Jugador jugador = partida.getJugadorActual();
+        jugador.setPlantado(true);
+        vista.mostrarMensaje(jugador.getNombre() + " se ha plantado.");
+
+        if (partida.todosPlantados()) {
+            partida.setRondaActual(Ronda.APOSTANDO);
+            partida.reiniciarTurnoParaApuestas(); // si necesitás resetear el turno
+            vista.mostrarMensaje("Todos se han plantado. Comienza la ronda de apuestas.");
+        } else {
+            partida.siguienteJugador();
+            vista.mostrarMensaje("Turno de " + partida.getJugadorActual().getNombre());
+        }
+    }
+    public void iniciarRondaApuestas() {
+        partida.setRondaActual(Ronda.APOSTANDO); // si usás enums o un flag para saber la etapa
+        vista.mostrarMenuApuestas(); // cambia el menú de la vista a modo apuestas
     }
 }

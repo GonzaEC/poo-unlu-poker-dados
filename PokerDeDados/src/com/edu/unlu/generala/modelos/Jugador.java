@@ -1,5 +1,7 @@
 package com.edu.unlu.generala.modelos;
 
+import java.util.List;
+
 public class Jugador extends Persona {
     private String nombre;
     private int saldo;
@@ -7,6 +9,8 @@ public class Jugador extends Persona {
     private Vaso vasoJugador;
     private ManoPoker manoPoker;
     private boolean haApostado = false;
+    private boolean plantado = false;
+    List<Dado> dadosGuardados;
 
     public Jugador(String nombre, int saldoInicial) {
         this.nombre = nombre;
@@ -29,7 +33,7 @@ public class Jugador extends Persona {
     public Vaso getVasoJugador(){return this.vasoJugador;}
 
     public int getManoPoker(){
-        int[] valoresDados = vasoJugador.obtenerValores();
+        int[] valoresDados = vasoJugador.getValores();
         return manoPoker.verificarMano(valoresDados);
     }
 
@@ -68,5 +72,21 @@ public class Jugador extends Persona {
     }
     public void setHaApostado(boolean haApostado) {
         this.haApostado = haApostado;
+    }
+
+
+    public List<Dado> getDadosGuardados() {
+        return dadosGuardados;
+    }
+    public void setDadosGuardados(List<Dado> dadosGuardados) {
+        this.dadosGuardados = dadosGuardados;
+    }
+
+    public boolean isPlantado() {
+        return this.plantado;
+    }
+
+    public void setPlantado(boolean b) {
+        this.plantado = b;
     }
 }

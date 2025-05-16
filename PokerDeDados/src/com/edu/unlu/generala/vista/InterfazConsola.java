@@ -7,6 +7,9 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class InterfazConsola extends JFrame implements IVista {
     private JPanel panelPrincipal;
@@ -67,8 +70,19 @@ public class InterfazConsola extends JFrame implements IVista {
             case DEPOSITAR:
                 //depositarSaldo(entrada);
                 break;
-            case TIRAR_DADOS:
+            case INGRESA_INDICES_RETIRO:
+                try {
+                    List<Integer> indices = Arrays.stream(entrada.trim().split("\\s+"))
+                            .map(Integer::parseInt)
+                            .filter(i -> i >= 0 && i < 5)
+                            .collect(Collectors.toList());
 
+                    controlador.tirarDadosSeleccionados(indices);
+                    estadoActual = EstadoVistaConsola.MENU_JUGADOR_APUESTAS;
+                    mostrarMenuJugadorApuestas();
+                } catch (NumberFormatException e) {
+                    println("Entrada inválida. Ingresá índices válidos del 0 al 4 separados por espacios:");
+                }
                 break;
         }
     }
@@ -128,46 +142,40 @@ public class InterfazConsola extends JFrame implements IVista {
 
     }
     private void procesarEntradaMenuJugadorDados(String entrada) {
-        switch (entrada){
+        switch (entrada) {
             case "1":
-                controlador.tirarDados();
-                mostrarMenuJugadorDados();
+                // Opción: Tirar todos los dados
+                controlador.tirarTodosDados();  // Método que tira todos los dados (primera tirada)
+                mostrarMenuJugadorDados();      // Volver a mostrar menú para la siguiente acción
                 break;
             case "2":
-
+                // Opción: Apartar dados y volver a tirar los restantes
+                println("Ingresá los índices de los dados que querés volver a tirar (de 0 a 4, separados por espacios):");
+                estadoActual = EstadoVistaConsola.INGRESA_INDICES_RETIRO;
                 break;
             case "3":
-
+                // Opción: Plantarse (terminar turno sin tirar más)
+                controlador.plantarse();
                 break;
-            case "4":
-
+            default:
+                println("Opción inválida, intente de nuevo.");
+                mostrarMenuJugadorDados();
                 break;
-
-
         }
     }
     private void mostrarMenuJugadorDados() {
         estadoActual = EstadoVistaConsola.MENU_JUGADOR_DADOS;
         println("\n-- TURNO DE: " + controlador.getJugadorActual().getNombre() + " --");
+        println("Tiradas restantes: " + controlador.getTiradasRestantes());
+        int tiradas = controlador.getTiradasRestantes();
         println("== MENÚ DE JUGADAS ==");
-        println("1. Tirar todos los dados");
-        println("2. Apartar dados y volver a tirar los restantes");
+        if (tiradas == 2){
+            println("1. Tirar todos los dados");
+        }
+        else if (tiradas == 1) {
+            println("2. Apartar dados y volver a tirar los restantes");
+        }
         println("3. Plantarse (no tirar más)");
-        println("Seleccione una opción:");
-    }
-    private void mostrarMenuJugadorApuestas() {
-        estadoActual = EstadoVistaConsola.MENU_JUGADOR_APUESTAS;
-        println("\n--- FASE DE APUESTAS ---");
-        println("\n-- TURNO DE: " + controlador.getJugadorActual().getNombre() + " --");
-        println("Tu apuesta actual: $" + controlador.apuestaActual());
-        println("Apuesta máxima: $" + controlador.apuestaMaxima());
-        println("Pozo actual: $" + controlador.pozoActual());
-        println("== MENÚ DE APUESTAS ==");
-        println("1. Apostar ");
-        println("2. Igualar apuesta");
-        println("3. Subir apuesta");
-        println("4. Pasar");
-        println("5. Retirarse");
         println("Seleccione una opción:");
     }
     private void mostrarMenuPrincipal() {
