@@ -42,7 +42,9 @@ public class ControladorGenerala {
         }
     }
 
-
+    public int cantidadJugadores(){
+        return partida.cantidaJugadores();
+    }
     public String evaluarJugada() {
         Jugador jugadorActual = getJugadorActual();
         int[] valoresDados = jugadorActual.getVasoJugador().getValores();
@@ -275,7 +277,9 @@ public class ControladorGenerala {
         vista.mostrarMensaje("¡Todos se han plantado! Comienza la ronda de apuestas.");
         vista.mostrarMenuApuestas(); // cambia el menú de la vista a modo apuestas
     }
-
+    public boolean todosPlantados(){
+        return partida.todosPlantados();
+    }
     public int getPozo() {
         return partida.getBote();
     }
