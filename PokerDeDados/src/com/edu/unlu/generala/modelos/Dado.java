@@ -1,15 +1,13 @@
 package com.edu.unlu.generala.modelos;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Dado {
+public class Dado implements Serializable {
     private int cara;
-    static private Random numeroAleatorio;
+    static private final Random numeroAleatorio = new Random();
 
     public Dado(){
-        if(numeroAleatorio == null){
-            numeroAleatorio = new Random();
-        }
         tirar();
     }
 

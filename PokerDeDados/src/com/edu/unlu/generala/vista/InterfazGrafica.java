@@ -7,6 +7,7 @@ import com.edu.unlu.generala.modelos.Jugador;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.rmi.RemoteException;
 import java.util.List;
 
 
@@ -20,6 +21,9 @@ public class InterfazGrafica extends JFrame implements IVista {
     private ControladorGenerala controlador;
     private JTextArea areaJugadores;
     private String nombreJugador;
+
+    private VentanaMenuDados ventanaDados;
+    private VentanaMenuApuestas ventanaApuestas;
 
     public InterfazGrafica(ControladorGenerala controlador) {
         setTitle("Juego de Dados");
@@ -203,7 +207,7 @@ public class InterfazGrafica extends JFrame implements IVista {
         }
 
         // Acá continúa normalmente si hay 2 o más jugadores
-        VentanaMenuDados ventanaDados = new VentanaMenuDados(controlador);
+        ventanaDados = new VentanaMenuDados(controlador);
         ventanaDados.setVisible(true);
 
         // También podrías ocultar o cerrar esta ventana si corresponde
@@ -242,22 +246,67 @@ public class InterfazGrafica extends JFrame implements IVista {
 
     @Override
     public void mostrarMenuJugadorDados() {
-
+        mostrarMensaje("estoy en menudados");
+        if (ventanaDados != null) {
+            ventanaDados.dispose();// Cerrás la anterior si quedó abierta
+            mostrarMensaje("cerre la ventana");
+        }
+        mostrarMensaje("estoy por crear la nueva");
+        ventanaDados = new VentanaMenuDados(controlador); // Creamos la nueva
+        ventanaDados.setVisible(true); // La mostramos
     }
 
     @Override
     public void mostrarMenuApuestas() {
-
+        if (ventanaApuestas != null) {
+            ventanaApuestas.dispose(); // Cerrás la anterior si quedó abierta
+        }
+        try {
+            ventanaApuestas = new VentanaMenuApuestas(controlador); // Creamos la nueva
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        ventanaApuestas.setVisible(true); // La mostramos
     }
 
     public void mostrarGanador() {
-        JOptionPane.showMessageDialog(this, "Ganador: " + controlador.determinarGanador().getNombre(), "Ganador", JOptionPane.INFORMATION_MESSAGE);
+        String ganador = controlador.determinarGanador().getNombre();
+        Mensaje ventanaGanador = new Mensaje("Ganador: " + ganador);
+        ventanaGanador.setTitle("Ganador");
+        ventanaGanador.setModal(true);
+        ventanaGanador.setSize(400, 200);
+        ventanaGanador.setLocationRelativeTo(this);
+        ventanaGanador.setVisible(true);
     }
 
     @Override
-    public void mostrarTirada(List<Dado> dadosTirados) {
+    public void mostrarTirada(int[] valoresDados) {
+        if (ventanaDados != null) {
+            ventanaDados.actualizarDados(valoresDados);
+            ventanaDados.actualizarEstadoYVista();
+        }
+    }
+
+    @Override
+    public void irAVentanaMenuApuestas() {
+        if (ventanaDados != null) {
+            ventanaDados.dispose();  // Cierra la ventana de dados si estaba abierta
+            //ventanaDados = null;
+        }
+        try {
+            ventanaApuestas = new VentanaMenuApuestas(controlador);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        ventanaApuestas.setVisible(true);
+    }
+
+    @Override
+    public void actualizarVista() {
+        ventanaDados.actualizarEstadoYVista();
 
     }
+
     public void notificarMensaje(String string) {
         SwingUtilities.invokeLater(() -> {
             JOptionPane.showMessageDialog(null, string);

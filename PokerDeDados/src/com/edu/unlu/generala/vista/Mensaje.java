@@ -31,6 +31,7 @@ public class Mensaje extends JDialog {
         buttonOK.addActionListener(e -> dispose());
     }
 
+
     private void onOK() {
         // add your code here
         dispose();

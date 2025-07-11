@@ -156,7 +156,11 @@ public class InterfazConsola extends JFrame implements IVista {
         switch (entrada) {
             case "1":
                 // Opción: Tirar todos los dados
-                controlador.tirarTodosDados();  // Método que tira todos los dados (primera tirada)
+                try {
+                    controlador.tirarTodosDados();  // Método que tira todos los dados (primera tirada)
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
                 mostrarMenuJugadorDados();      // Volver a mostrar menú para la siguiente acción
                 break;
             case "2":
@@ -166,7 +170,11 @@ public class InterfazConsola extends JFrame implements IVista {
                 break;
             case "3":
                 // Opción: Plantarse (terminar turno sin tirar más)
-                controlador.plantarse();
+                try {
+                    controlador.plantarse();
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             default:
                 println("Opción inválida, intente de nuevo.");
@@ -177,14 +185,22 @@ public class InterfazConsola extends JFrame implements IVista {
     private void procesarEntradaMenuApuestas(String entrada) {
         switch (entrada){
             case "1":
-                controlador.igualarApuesta();
+                try {
+                    controlador.igualarApuesta();
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case "2":
                 println("Cuanto queres apostar? ");
                 estadoActual = EstadoVistaConsola.SUBIR_APUESTA;
                 break;
             case "3":
-                controlador.plantarseApuesta();
+                try {
+                    controlador.plantarseApuesta();
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             default:
                 println("Opción inválida, intente de nuevo.");
@@ -213,7 +229,11 @@ public class InterfazConsola extends JFrame implements IVista {
 
         println("\n-- RONDA DE APUESTAS --");
         println("Turno de: " + jugador.getNombre());
-        println("Pozo actual: $" + controlador.getPozo());
+        try {
+            println("Pozo actual: $" + controlador.getPozo());
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
         println("Tu apuesta actual: $" + jugador.getApostado());
         println("Apuesta máxima actual: $" + controlador.getApuestaMaxima());
         println("");
@@ -241,20 +261,27 @@ public class InterfazConsola extends JFrame implements IVista {
     }
 
     @Override
-    public void mostrarTirada(List<Dado> dadosTirados){
+    public void mostrarTirada(int[] valoresDados) {
         println("Dados: ");
-        for (int i = 0; i < dadosTirados.size(); i++) {
-            Dado dado = dadosTirados.get(i);
-            println("[" + (i+1) + ": " + dado.getCara() + "] ");
+        for (int i = 0; i < valoresDados.length; i++) {
+            println("[" + (i + 1) + ": " + valoresDados[i] + "] ");
         }
         println(""); // Salto de línea al final
     }
 
     @Override
-    public void mostrarGanador(){
+    public void irAVentanaMenuApuestas() {
+
+    }
+
+
+    @Override
+    public void mostrarGanador() throws RemoteException {
         println("El ganador es: " + controlador.determinarGanador().getNombre());
         println("Ha ganado: $" + controlador.getPozo());
     }
+
+
     @Override
     public void setControlador(ControladorGenerala controlador) {
         this.controlador = controlador;

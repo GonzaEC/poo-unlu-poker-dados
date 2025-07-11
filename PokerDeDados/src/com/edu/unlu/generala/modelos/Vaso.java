@@ -1,10 +1,11 @@
 package com.edu.unlu.generala.modelos;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Vaso {
+public class Vaso implements Serializable {
     private Dado dados[];
     private static final int CANTIDAD_DADOS = 5;
 

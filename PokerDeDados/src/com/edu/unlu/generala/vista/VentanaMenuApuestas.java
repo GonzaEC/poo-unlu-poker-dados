@@ -4,6 +4,7 @@ import com.edu.unlu.generala.controladores.ControladorGenerala;
 
 import javax.swing.*;
 import java.awt.*;
+import java.rmi.RemoteException;
 
 public class VentanaMenuApuestas extends JFrame {
     private ControladorGenerala controlador;
@@ -25,7 +26,7 @@ public class VentanaMenuApuestas extends JFrame {
     private static final Font FUENTE_LABEL = new Font("Arial", Font.BOLD, 20);
     private static final Color COLOR_FUENTE_LABEL = Color.WHITE;
 
-    public VentanaMenuApuestas(ControladorGenerala controlador) {
+    public VentanaMenuApuestas(ControladorGenerala controlador) throws RemoteException {
         this.controlador = controlador;
 
         setTitle("Menú de Apuestas - Generala");
@@ -93,16 +94,10 @@ public class VentanaMenuApuestas extends JFrame {
 
         // Acciones botones
         btnIgualar.addActionListener(e -> {
-            controlador.igualarApuesta();
-            this.dispose();
-
-            if (controlador.todosHanApostado()) {
-                // Pasar a la siguiente etapa (por ejemplo, lanzar dados)
-                return;
-            } else {
-                // Abrir la ventana de apuestas para el siguiente jugador
-                VentanaMenuApuestas ventanaApuestas = new VentanaMenuApuestas(controlador);
-                ventanaApuestas.setVisible(true);
+            try {
+                controlador.igualarApuesta();
+            } catch (RemoteException ex) {
+                throw new RuntimeException(ex);
             }
         });
 
@@ -110,35 +105,25 @@ public class VentanaMenuApuestas extends JFrame {
             String input = JOptionPane.showInputDialog(this, "¿Cuánto querés apostar?");
             try {
                 controlador.subirApuesta(input);
-                this.dispose();
-
-                if (controlador.todosHanApostado()) {
-                    return;
-                } else {
-                    VentanaMenuApuestas ventanaApuestas = new VentanaMenuApuestas(controlador);
-                    ventanaApuestas.setVisible(true);
-                }
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Cantidad inválida, intentá de nuevo.");
+            } catch (RemoteException ex) {
+                throw new RuntimeException(ex);
             }
         });
 
         btnPlantarse.addActionListener(e -> {
-            controlador.plantarseApuesta();
-            this.dispose();
-
-            if (controlador.todosHanApostado()) {
-                return;
-            } else {
-                VentanaMenuApuestas ventanaApuestas = new VentanaMenuApuestas(controlador);
-                ventanaApuestas.setVisible(true);
+            try {
+                controlador.plantarseApuesta();
+            } catch (RemoteException ex) {
+                throw new RuntimeException(ex);
             }
         });
 
     }
 
     // Método para actualizar la vista cuando se vuelve a mostrar
-    public void actualizarDatos() {
+    public void actualizarDatos() throws RemoteException {
         lblJugador.setText("Turno de: " + controlador.getJugadorActual().getNombre());
         lblPozo.setText("Pozo actual: $" + controlador.getPozo());
         lblApuestaJugador.setText("Tu apuesta actual: $" + controlador.getJugadorActual().getApostado());
@@ -146,7 +131,7 @@ public class VentanaMenuApuestas extends JFrame {
     }
 
     // Método para mostrar la ventana (y actualizar datos)
-    public void mostrar() {
+    public void mostrar() throws RemoteException {
         actualizarDatos();
         setVisible(true);
     }

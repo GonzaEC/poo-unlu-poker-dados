@@ -1,5 +1,7 @@
 package com.edu.unlu.generala.controladores;
 
+import ar.edu.unlu.rmimvc.cliente.IControladorRemoto;
+import ar.edu.unlu.rmimvc.observer.IObservableRemoto;
 import com.edu.unlu.generala.modelos.*;
 import com.edu.unlu.generala.vista.IVista;
 
@@ -7,12 +9,16 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ControladorGenerala {
-    private Partida partida;
-    IVista vista;
 
-    public ControladorGenerala() {
-        this.partida = new Partida();
+public class ControladorGenerala implements IControladorRemoto {
+    IVista vista;
+    IPartida partida;
+    public ControladorGenerala(){
+
+    }
+    public ControladorGenerala(IVista vista) {
+        //this.partida = new Partida();
+        this.vista = vista;
     }
 
     public void setVista(IVista vista) {
@@ -43,41 +49,58 @@ public class ControladorGenerala {
     }
 
     public int cantidadJugadores(){
-        return partida.cantidaJugadores();
+        try {
+            return partida.cantidaJugadores();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return 0;
     }
     public String evaluarJugada() {
-        Jugador jugadorActual = getJugadorActual();
-        int[] valoresDados = jugadorActual.getVasoJugador().getValores();
-        int resultado = jugadorActual.getMano().verificarMano(valoresDados);
+       try {
+           Jugador jugadorActual = getJugadorActual();
+           int[] valoresDados = jugadorActual.getVasoJugador().getValores();
+           int resultado = jugadorActual.getMano().verificarMano(valoresDados);
 
-        switch (resultado) {
-            case 7:
-                return "Poker real";
-            case 6:
-                return "Poker cuadruple";
-            case 5:
-                return "Full";
-            case 4:
-                return "Escalera mayor";
-            case 3:
-                return "Escalera menor";
-            case 2:
-                return "Piernas";
-            case 1:
-                return "Pares dobles";
-            case 0:
-                return "Pares";
-            default:
-                return "Sin valor";
-        }
+           switch (resultado) {
+               case 7:
+                   return "Poker real";
+               case 6:
+                   return "Poker cuadruple";
+               case 5:
+                   return "Full";
+               case 4:
+                   return "Escalera mayor";
+               case 3:
+                   return "Escalera menor";
+               case 2:
+                   return "Piernas";
+               case 1:
+                   return "Pares dobles";
+               case 0:
+                   return "Pares";
+               default:
+                   return "Sin valor";
+           }
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
+
+        return "";
     }
 
     public Jugador determinarGanador() {
-        return partida.determinarGanador();
+        try {
+            return partida.determinarGanador();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
-    public boolean realizarApuesta(Jugador jugador, int monto) {
+    public boolean realizarApuesta(Jugador jugador, int monto) throws RemoteException {
         if (partida.getRondaActual() != EventoPartida.RONDA_APUESTAS) {
             vista.mostrarMensaje("No se puede apostar en esta ronda.");
             return false;
@@ -96,29 +119,44 @@ public class ControladorGenerala {
     }
 
     public Jugador getJugadorActual() {
-        return partida.getJugadorActual();
+        try {
+            return partida.getJugadorActual();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
-    public void cambiarTurno() {
+    public void cambiarTurno() throws RemoteException {
         partida.reiniciarTiradas();
         partida.avanzarTurno();
     }
 
     public List<Jugador> getJugadores() {
-        return partida.getJugadores();
+        try {
+            return partida.getJugadores();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return List.of();
     }
 
-    public void finalizarPartida() {
-        Jugador ganador = partida.determinarGanador();
-        //notificar
-    }
+
 
 
     public int getTiradasRestantes() {
-        return partida.getTiradasRestantes();
+        try {
+            return partida.getTiradasRestantes();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
     }
 
-    public List<Jugador> obtenerPerdedores() {
+    public List<Jugador> obtenerPerdedores() throws RemoteException {
         List<Jugador> perdedores = new ArrayList<>();
 
         for (Jugador jugador : partida.getJugadores()) {
@@ -142,7 +180,11 @@ public class ControladorGenerala {
     public boolean existeJugador(String nombreJugador) {
         boolean resultado = false;
         List<Jugador> jugadores = new ArrayList<>();
-        jugadores = partida.getJugadores();
+        try {
+            jugadores = partida.getJugadores();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
         for (Jugador gamer : jugadores) {
             if (gamer.getNombre().equals(nombreJugador)) {
                 resultado = true;
@@ -154,7 +196,12 @@ public class ControladorGenerala {
 
     // ! chequear creo que es al pedo
     public void depositar(String deposito) {
-        Jugador player = partida.getJugadorActual();
+        Jugador player = null;
+        try {
+            player = partida.getJugadorActual();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
         try {
             int monto = Integer.parseInt(deposito);
             if (monto > 0) {
@@ -168,91 +215,137 @@ public class ControladorGenerala {
         }
     }
 
-    public int pozoActual() {
+    public int pozoActual() throws RemoteException {
         return partida.getBote();
     }
 
     public int apuestaMaxima() {
-        return partida.getApuestaMaxima();
+        try {
+            return partida.getApuestaMaxima();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int apuestaActual() {
-        return partida.getJugadorActual().getApuesta().getCantidad();
+        try {
+            return partida.getJugadorActual().getApuesta().getCantidad();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void tirarTodosDados() {
+    public void tirarTodosDados() throws RemoteException {
 
         if (partida.getRondaActual() != EventoPartida.RONDA_TIRADAS) {
             vista.mostrarMensaje("No se pueden tirar dados en esta ronda.");
             return;
         }
-        Jugador jugador = partida.getJugadorActual();
+        Jugador jugador = null;
+        try {
+            jugador = partida.getJugadorActual();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
         if (jugador.isPlantado()) {
             vista.mostrarMensaje("Ya te has plantado. No podés tirar más dados.");
             return;
         }
-        if (partida.getTiradasRestantes() <= 0) {
-            vista.mostrarMensaje("No quedan más tiradas.");
-            return;
+        try {
+            if (partida.getTiradasRestantes() <= 0) {
+                vista.mostrarMensaje("No quedan más tiradas.");
+                return;
+            }
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
 
-        if (partida.getTiradasRestantes() == 2) {
-            // Tirar todos los dados del vaso del jugador
-            jugador.getVasoJugador().lanzarDados();
-            vista.mostrarTirada(jugador.getVasoJugador().getDados());
+        try {
+            if (partida.getTiradasRestantes() == 2) {
+                // Tirar todos los dados del vaso del jugador
+                jugador.getVasoJugador().lanzarDados();
+                // Actualizar mano poker con el vaso actual (que tiene los dados tirados)
+                jugador.setManoPoker(jugador.getVasoJugador());
+                partida.usarTirada();
 
-            // Actualizar mano poker con el vaso actual (que tiene los dados tirados)
-            jugador.setManoPoker(jugador.getVasoJugador());
+                partida.notificarObservadores(EventoPartida.DADOS_TIRADOS);
+                //vista.mostrarTirada(jugador.getVasoJugador().getDados());
 
-            partida.usarTirada();
-        } else {
-            vista.mostrarMensaje("Ya no puedes tirar todos los dados, usa la opción de dados seleccionados.");
+
+
+            } else {
+                vista.mostrarMensaje("Ya no puedes tirar todos los dados, usa la opción de dados seleccionados.");
+            }
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
+
+
     }
 
     public void tirarDadosSeleccionados(List<Integer> indices) {
-        if (partida.getRondaActual() != EventoPartida.RONDA_TIRADAS) {
-            vista.mostrarMensaje("No se pueden tirar dados en esta ronda.");
-            return;
+        try {
+            if (partida.getRondaActual() != EventoPartida.RONDA_TIRADAS) {
+                vista.mostrarMensaje("No se pueden tirar dados en esta ronda.");
+                return;
+            }
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
-        Jugador jugador = partida.getJugadorActual();
+        Jugador jugador = null;
+        try {
+            jugador = partida.getJugadorActual();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
         if (jugador.isPlantado()) {
             vista.mostrarMensaje("Ya te has plantado. No podés tirar más dados.");
             return;
         }
-        if (partida.getTiradasRestantes() <= 0) {
-            vista.mostrarMensaje("No quedan más tiradas.");
-            return;
+        try {
+            if (partida.getTiradasRestantes() <= 0) {
+                vista.mostrarMensaje("No quedan más tiradas.");
+                return;
+            }
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
 
-        if (partida.getTiradasRestantes() == 1) {
-            // Tirar sólo los dados en el vaso según los índices recibidos
-            jugador.getVasoJugador().lanzarSeleccionados(indices);
+        try {
+            if (partida.getTiradasRestantes() == 1) {
+                // Tirar sólo los dados en el vaso según los indices recibidos
+                jugador.getVasoJugador().lanzarSeleccionados(indices);
 
-            // Mostrar los dados que fueron lanzados en esta tirada
-            List<Dado> dadosTirados = new ArrayList<>();
-            for (int i : indices) {
-                if (i >= 0 && i < jugador.getVasoJugador().getDados().size()) {
-                    dadosTirados.add(jugador.getVasoJugador().getDados().get(i));
+                // Mostrar los dados que fueron lanzados en esta tirada
+                List<Dado> dadosTirados = new ArrayList<>();
+                for (int i : indices) {
+                    if (i >= 0 && i < jugador.getVasoJugador().getDados().size()) {
+                        dadosTirados.add(jugador.getVasoJugador().getDados().get(i));
+                    }
                 }
+
+                // Actualizar mano poker con el vaso modificado
+                jugador.setManoPoker(jugador.getVasoJugador());
+                partida.usarTirada();
+                partida.notificarObservadores(EventoPartida.DADOS_TIRADOS);
+
+            } else {
+                vista.mostrarMensaje("No puedes tirar dados seleccionados en esta tirada.");
             }
-            vista.mostrarTirada(dadosTirados);
-
-            // Actualizar mano poker con el vaso modificado
-            jugador.setManoPoker(jugador.getVasoJugador());
-
-            partida.usarTirada();
-
-        } else {
-            vista.mostrarMensaje("No puedes tirar dados seleccionados en esta tirada.");
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private boolean todosLosJugadoresPlantados() {
-        return partida.todosPlantados();
+        try {
+            return partida.todosPlantados();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void plantarse() {
+    public void plantarse() throws RemoteException {
         if (partida.getRondaActual() != EventoPartida.RONDA_TIRADAS) {
             vista.mostrarMensaje("No puedes plantarte en esta ronda.");
             return;
@@ -262,33 +355,50 @@ public class ControladorGenerala {
         jugador.setPlantado(true);
         vista.mostrarMensaje(jugador.getNombre() + " se ha plantado.");
         partida.reiniciarTiradas();
+
         if (partida.todosPlantados()) {
+            //partida.setRondaActual(EventoPartida.RONDA_APUESTAS);
+            //partida.notificarObservadores(EventoPartida.TODOS_PLANTADOS);
+        } else {
+            partida.avanzarTurno();
+            partida.notificarObservadores(EventoPartida.ACTUALIZAR_MENU_DADOS);
+        }
+
+        /*if (partida.todosPlantados()) {
             iniciarRondaApuestas();
         } else {
             partida.avanzarTurno();
             vista.mostrarMensaje("Turno de " + partida.getJugadorActual().getNombre());
             vista.mostrarMenuJugadorDados();
-        }
+        }*/
     }
 
-    public void iniciarRondaApuestas() {
+    public void iniciarRondaApuestas() throws RemoteException {
         partida.setRondaActual(EventoPartida.RONDA_APUESTAS);// si usás enums o un flag para saber la etapa
         partida.reiniciarTurnoParaApuestas();
         vista.mostrarMensaje("¡Todos se han plantado! Comienza la ronda de apuestas.");
         vista.mostrarMenuApuestas(); // cambia el menú de la vista a modo apuestas
     }
     public boolean todosPlantados(){
-        return partida.todosPlantados();
+        try {
+            return partida.todosPlantados();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
-    public int getPozo() {
+    public int getPozo() throws RemoteException {
         return partida.getBote();
     }
 
     public int getApuestaMaxima() {
-        return partida.getApuestaMaxima();
+        try {
+            return partida.getApuestaMaxima();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void igualarApuesta() {
+    public void igualarApuesta() throws RemoteException {
         int diferencia = partida.getApuestaMaxima() - partida.getJugadorActual().getApostado();
         partida.getJugadorActual().aumentarApuesta(diferencia);
         partida.agregarAlPozo(diferencia);
@@ -297,27 +407,39 @@ public class ControladorGenerala {
 
     }
 
-    public void plantarseApuesta() {
+    public void plantarseApuesta() throws RemoteException {
         partida.getJugadorActual().setPlantoApuesta(true);
 
         evaluarFinDeRondaApuestas();
     }
 
-    private void evaluarFinDeRondaApuestas() {
+    private void evaluarFinDeRondaApuestas() throws RemoteException {
         boolean terminoRonda = partida.siguienteApostador();
 
         if (terminoRonda) {
             Jugador ganador = determinarGanador();
-            partida.distribuirGanancias(ganador);
-            vista.mostrarGanador();
-            partida.prepararSiguienteRonda();
-            vista.mostrarMenuJugadorDados();
+            try {
+                partida.distribuirGanancias(ganador);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                partida.notificarObservadores(EventoPartida.GANADOR_DETERMINADO);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                partida.prepararSiguienteRonda();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+            partida.notificarObservadores(EventoPartida.CAMBIO_TURNO);
         } else {
-            vista.mostrarMenuApuestas();
+            partida.notificarObservadores(EventoPartida.RONDA_APUESTAS_INICIADA);
         }
     }
 
-    public void subirApuesta(String entrada) {
+    public void subirApuesta(String entrada) throws RemoteException {
         Jugador jugador = getJugadorActual();
 
         try {
@@ -326,13 +448,13 @@ public class ControladorGenerala {
 
             if (nuevoMonto <= 0) {
                 vista.mostrarMensaje("La apuesta debe ser mayor a 0.");
-                vista.mostrarMenuApuestas();
+                partida.notificarObservadores(EventoPartida.RONDA_APUESTAS_INICIADA);
                 return;
             }
 
             if (nuevoMonto <= yaApostado) {
                 vista.mostrarMensaje("Tenés que subir la apuesta, no bajarla o repetirla.");
-                vista.mostrarMenuApuestas();
+                partida.notificarObservadores(EventoPartida.RONDA_APUESTAS_INICIADA);
                 return;
             }
 
@@ -340,7 +462,7 @@ public class ControladorGenerala {
 
             if (jugador.getSaldo() < diferencia) {
                 vista.mostrarMensaje("No tenés suficiente saldo para subir esa cantidad.");
-                vista.mostrarMenuApuestas();
+                partida.notificarObservadores(EventoPartida.RONDA_APUESTAS_INICIADA);
                 return;
             }
 
@@ -354,7 +476,60 @@ public class ControladorGenerala {
 
         } catch (NumberFormatException e) {
             vista.mostrarMensaje("Entrada inválida. Debe ser un número.");
-            vista.mostrarMenuApuestas();
+            partida.notificarObservadores(EventoPartida.RONDA_APUESTAS_INICIADA);
+        }
+    }
+
+    @Override
+    public <T extends IObservableRemoto> void setModeloRemoto(T modeloRemoto) throws RemoteException {
+        this.partida = (IPartida) modeloRemoto;
+    }
+
+    @Override
+    public void actualizar(IObservableRemoto modelo, Object evento) throws RemoteException {
+        if (evento instanceof EventoPartida) {
+            switch (((EventoPartida) evento)) {
+                case JUGADOR_AGREGADO -> {
+                    vista.mostrarMensaje("Jugador agregado");
+                }
+                case JUEGO_INICIADO -> {
+                    vista.mostrarMensaje("¡Comienza la partida!");
+                    //vista.irAVentanaMenuDados();  // método que muestra o refresca la ventana de dados
+                }
+                case DADOS_TIRADOS -> {
+                    vista.mostrarTirada(partida.getJugadorActual().getVasoJugador().getValores());
+
+                }
+                case ACTUALIZAR_MENU_DADOS -> {
+                    vista.actualizarVista();
+                    //vista.mostrarMenuJugadorDados(); // refresca/abre la ventana de dados
+                }
+                case TODOS_PLANTADOS -> {
+                    vista.mostrarMensaje("¡Todos se plantaron! Comienza apuestas.");
+                    vista.irAVentanaMenuApuestas();  // método que muestra o refresca la ventana de apuestas
+                }
+                case RONDA_APUESTAS_INICIADA -> {
+                    vista.mostrarMenuApuestas();     // refresca la UI de apuestas
+                }
+                case APUESTA_IGUALADA, APUESTA_SUBIDA, APOSTADOR_PLANTADO -> {
+                    // En todos estos casos simplemente actualizamos la UI de apuestas
+                    //vista.actualizarMenuApuestas(partida.getJugadorActual());
+                }
+                case SIGUIENTE_APOSTADOR -> {
+                    vista.mostrarMensaje("Siguiente turno para apostar");
+                    //vista.actualizarMenuApuestas();
+                }
+                case RONDA_APUESTAS_FINALIZADA -> {
+                    Jugador ganador = partida.determinarGanador();
+                    vista.mostrarGanador();
+                }
+                case GANADOR_DETERMINADO -> {
+                    vista.mostrarGanador();
+                }
+                default -> {
+                    vista.mostrarMensaje("Evento desconocido: " + evento);
+                }
+            }
         }
     }
 }

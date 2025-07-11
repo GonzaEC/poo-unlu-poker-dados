@@ -1,6 +1,8 @@
 package com.edu.unlu.generala.modelos;
 
-public class Apuesta {
+import java.io.Serializable;
+
+public class Apuesta implements Serializable {
     private int cantidad;
     private Jugador jugador;
 

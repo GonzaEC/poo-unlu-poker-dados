@@ -1,52 +1,54 @@
 package com.edu.unlu.generala.modelos;
 
+import ar.edu.unlu.rmimvc.observer.IObservableRemoto;
+
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.List;
 
-public interface IPartida{
+public interface IPartida extends IObservableRemoto {
     void agregarJugador(String jugador) throws RemoteException;
 
-    void eliminarJugador(Jugador jugador) throws RemoteException;
-
-    List<Jugador> obtenerTodosLosJugadores() throws RemoteException;
 
     void avanzarTurno() throws RemoteException;
 
-    int getIndiceJugadorActual() throws RemoteException;
-
-    int getTurno();
-
     int getBote() throws RemoteException;
 
-    int cantidaJugadores();
-
-    boolean sigueJuego();
-
-    Vaso getVaso();
+    int cantidaJugadores() throws RemoteException;
 
     //tirar dados seleccionados
-    void tirarDadosSeleccion(ArrayList<Integer> indices);
+    Jugador determinarGanador() throws RemoteException;
 
-    Jugador determinarGanador();
+    boolean agregarApuesta(Jugador jugador, int cantidad) throws RemoteException;
 
-    boolean agregarApuesta(Jugador jugador, int cantidad);
 
-    List<Apuesta> getApuestas();
+    List<Jugador> getJugadores() throws RemoteException;
 
-    List<Jugador> getJugadores();
+    Jugador getJugadorActual() throws RemoteException;
 
-    Jugador getJugadorActual();
 
-    void tirarDados();
+    int getTiradasRestantes() throws RemoteException;
 
-    void setBote(int i);
+    void usarTirada() throws RemoteException;
 
-    void setIndiceJugadorActual(int i);
+    void reiniciarTiradas() throws RemoteException;
 
-    int getTiradasRestantes();
+    void agregarAlPozo(int diferencia) throws RemoteException;
 
-    void usarTirada();
+    void setApuestaMaxima(int apostado) throws RemoteException;
 
-    void reiniciarTiradas();
+    void distribuirGanancias(Jugador ganador) throws RemoteException;
+
+    void prepararSiguienteRonda() throws RemoteException;
+
+    boolean siguienteApostador() throws RemoteException;
+
+    int getApuestaMaxima() throws RemoteException;
+
+    boolean todosPlantados() throws RemoteException;
+
+    void reiniciarTurnoParaApuestas() throws RemoteException;
+
+    void setRondaActual(EventoPartida eventoPartida) throws RemoteException;
+
+    EventoPartida getRondaActual() throws RemoteException;
 }

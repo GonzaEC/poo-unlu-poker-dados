@@ -4,6 +4,7 @@ import com.edu.unlu.generala.controladores.ControladorGenerala;
 
 import javax.swing.*;
 import java.awt.*;
+import java.rmi.RemoteException;
 
 public class VentanaMenuDados extends JFrame {
     private ControladorGenerala controlador;
@@ -16,7 +17,7 @@ public class VentanaMenuDados extends JFrame {
     private JPanel panelDados;
     private JToggleButton[] botonesDados;
     private static final int CANT_DADOS = 5;
-
+    VentanaMenuApuestas ventanaApuestas;
     private static final Dimension TAM_BOTON = new Dimension(280, 50);
     private static final Font FUENTE_LABEL = new Font("Arial", Font.BOLD, 20);
     private static final Color COLOR_FUENTE_LABEL = Color.WHITE;
@@ -98,9 +99,12 @@ public class VentanaMenuDados extends JFrame {
         inicializarDados();
 
         btnTirarTodos.addActionListener(e -> {
-            controlador.tirarTodosDados();
-            actualizarDados(controlador.getJugadorActual().getVasoJugador().getValores());
-            actualizarEstadoYVista();
+            try {
+                controlador.tirarTodosDados();
+            } catch (RemoteException ex) {
+                throw new RuntimeException(ex);
+            }
+
         });
 
         btnApartarDados.addActionListener(e -> {
@@ -116,24 +120,32 @@ public class VentanaMenuDados extends JFrame {
             // Pasar la lista directamente al controlador
             controlador.tirarDadosSeleccionados(indicesDadosATirar);
 
-            actualizarDados(controlador.getJugadorActual().getVasoJugador().getValores());
-            actualizarEstadoYVista();
         });
 
         btnPlantarse.addActionListener(e -> {
-            controlador.plantarse();
+            try {
+                controlador.plantarse();
+            } catch (RemoteException ex) {
+                throw new RuntimeException(ex);
+            }
             boolean etapaTerminada = controlador.todosPlantados();
             this.dispose(); // cerrar ventana actual
 
             if (etapaTerminada) {
                 // Pasar a la etapa de apuestas, abrir ventana de apuestas
-                VentanaMenuApuestas ventanaApuestas = new VentanaMenuApuestas(controlador);
+                VentanaMenuApuestas ventanaApuestas = null;
+                try {
+                    ventanaApuestas = new VentanaMenuApuestas(controlador);
+                } catch (RemoteException ex) {
+                    throw new RuntimeException(ex);
+                }
                 ventanaApuestas.setVisible(true);
             } else {
                 // Seguir con el siguiente jugador en la etapa de dados
                 VentanaMenuDados ventanaSiguienteJugador = new VentanaMenuDados(controlador);
                 ventanaSiguienteJugador.setVisible(true);
             }
+
         });
     }
 
@@ -143,31 +155,31 @@ public class VentanaMenuDados extends JFrame {
         actualizarDados(valoresIniciales);
     }
 
-    private void actualizarDados(int[] valoresDados) {
+    public void actualizarDados(int[] valoresDados) {
         for (int i = 0; i < CANT_DADOS; i++) {
             botonesDados[i].setIcon(cargarIconoDado(valoresDados[i]));
             botonesDados[i].setSelected(false);
         }
     }
-
     private ImageIcon cargarIconoDado(int numero) {
         String path = "src/com/edu/unlu/generala/utils/dado" + numero + ".png";
         ImageIcon icono = new ImageIcon(path);
         Image img = icono.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
         return new ImageIcon(img);
     }
+    public void actualizarEstadoYVista() {
+        lblTiradasRestantes.setText("Tiradas restantes: " + controlador.getTiradasRestantes());
+        actualizarBotones();
+        lblJugador.setText("Turno de: " + controlador.getJugadorActual().getNombre());
+    }
 
-    private void actualizarBotones() {
+    public void actualizarBotones() {
         int tiradas = controlador.getTiradasRestantes();
         btnTirarTodos.setEnabled(tiradas == 2);
         btnApartarDados.setEnabled(tiradas == 1);
     }
 
-    private void actualizarEstadoYVista() {
-        lblTiradasRestantes.setText("Tiradas restantes: " + controlador.getTiradasRestantes());
-        actualizarBotones();
-        lblJugador.setText("Turno de: " + controlador.getJugadorActual().getNombre());
-    }
+
 
     private void estilizarBoton(JButton boton) {
         Color marronMedio = new Color(107, 76, 59);

@@ -4,6 +4,7 @@ import com.edu.unlu.generala.controladores.ControladorGenerala;
 import com.edu.unlu.generala.modelos.Apuesta;
 import com.edu.unlu.generala.modelos.Dado;
 
+import java.rmi.RemoteException;
 import java.util.List;
 
 public interface IVista {
@@ -15,7 +16,12 @@ public interface IVista {
 
     void mostrarMenuApuestas();
 
-    void mostrarGanador();
+    void mostrarGanador() throws RemoteException;
 
-    void  mostrarTirada(List<Dado> dadosTirados);
+    void  mostrarTirada(int[] valoresDados);
+
+
+    void irAVentanaMenuApuestas();
+
+    void actualizarVista();
 }

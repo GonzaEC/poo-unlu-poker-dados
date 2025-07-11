@@ -1,6 +1,8 @@
 package com.edu.unlu.generala.modelos;
 
-public class ManoPoker {
+import java.io.Serializable;
+
+public class ManoPoker implements Serializable {
     private Vaso vaso;
 
     public ManoPoker(Vaso vaso) {

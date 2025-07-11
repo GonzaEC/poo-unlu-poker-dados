@@ -1,8 +1,9 @@
 package com.edu.unlu.generala.modelos;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Jugador extends Persona {
+public class Jugador extends Persona implements Serializable {
     private String nombre;
     private int saldo;
     private Apuesta apostado;

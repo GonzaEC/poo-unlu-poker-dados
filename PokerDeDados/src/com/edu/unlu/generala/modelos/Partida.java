@@ -1,12 +1,13 @@
 package com.edu.unlu.generala.modelos;
 
+
 import ar.edu.unlu.rmimvc.observer.ObservableRemoto;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Partida implements IPartida {
+public class Partida extends ObservableRemoto implements IPartida {
     private final List<Jugador> jugadores;
     private final List<Apuesta> apuestas;
     private Vaso vaso;
@@ -51,21 +52,6 @@ public class Partida implements IPartida {
     }
 
     @Override
-    public List<Apuesta> getApuestas() {
-        return apuestas;
-    }
-
-    @Override
-    public Vaso getVaso() {
-        return vaso;
-    }
-
-    @Override
-    public int getTurno() {
-        return indiceJugadorActual;
-    }
-
-    @Override
     public int getBote() {
         return bote;
     }
@@ -83,24 +69,9 @@ public class Partida implements IPartida {
     }
 
     @Override
-    public boolean sigueJuego() {
-        return jugadores.size() > 2 && determinarGanador() == null;
-    }
-
-    @Override
     public void agregarJugador(String nombre) throws RemoteException {
         jugadores.add(new Jugador(nombre, 100));
-
-    }
-
-    @Override
-    public void eliminarJugador(Jugador jugador) throws RemoteException {
-        jugadores.remove(jugador);
-    }
-
-    @Override
-    public List<Jugador> obtenerTodosLosJugadores() throws RemoteException {
-        return new ArrayList<>(jugadores);
+        //notificarObservadores(EventoPartida.JUGADOR_AGREGADO);
     }
 
     public void usarTirada() {
@@ -126,15 +97,9 @@ public class Partida implements IPartida {
     }
 
 
-    //tirar dados
-    public void tirarDados() {
-        vaso.lanzarDados();
-    }
+
     //tirar dados seleccionados
-    @Override
-    public void tirarDadosSeleccion(ArrayList<Integer> indices){
-        vaso.lanzarSeleccionados(indices);
-    }
+
     //determina ganador con mayor mano
     public Jugador determinarGanador() {
         Jugador ganador = null;
@@ -158,27 +123,25 @@ public class Partida implements IPartida {
                 }
             }
         }
-
+        /*try {
+            notificarObservadores(EventoPartida.GANADOR_DETERMINADO);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }*/
         return ganador;
     }
 
-    public void avanzarTurno() {
+    public void avanzarTurno() throws RemoteException {
         indiceJugadorActual = (indiceJugadorActual + 1) % jugadores.size();
+        //notificarObservadores(EventoPartida.CAMBIO_TURNO);
     }
 
-    @Override
-    public int getIndiceJugadorActual() throws RemoteException {
-        return 0;
-    }
+
 
     public int getApuestaMaxima() {
         return apuestaMaxima;
     }
-    public void reiniciarPlantados() {
-        for (Jugador j : this.getJugadores()) {
-            j.setPlantado(false);
-        }
-    }
+
     public EventoPartida getRondaActual() {
         return rondaActual;
     }
@@ -187,20 +150,19 @@ public class Partida implements IPartida {
         this.rondaActual = rondaActual;
     }
 
-    public boolean todosPlantados() {
+    public boolean todosPlantados() throws RemoteException {
         for (Jugador j : jugadores) {
             if (!j.isPlantado()) {
                 return false;
             }
         }
+        /*try {
+            notificarObservadores(EventoPartida.TODOS_PLANTADOS);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }*/
         return true;
 
-    }
-    public void avanzarRondaSiEsNecesario() {
-        if (rondaActual == EventoPartida.RONDA_TIRADAS && todosPlantados()) {
-            rondaActual = EventoPartida.RONDA_APUESTAS;
-            reiniciarTiradas(); // opcional si querés resetear
-        }
     }
 
     public void reiniciarTurnoParaApuestas() {
@@ -231,7 +193,11 @@ public class Partida implements IPartida {
         );
 
         if (rondaFinalizada) {
-            avanzarTurno(); // Cambia el estado de la partida si es necesario
+            try {
+                avanzarTurno(); // Cambia el estado de la partida si es necesario
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return rondaFinalizada; // Le dice al controlador si la ronda de apuestas terminó
